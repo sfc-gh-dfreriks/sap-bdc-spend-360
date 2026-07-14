@@ -1,0 +1,31 @@
+manifest_version: 2
+
+version:
+  name: v1
+  label: "Spend 360 v1 (self-contained)"
+  comment: "SAP Spend 360 Spend Intelligence dashboard (React + Express on SPCS) with bundled data and the SAP_SPEND_360_ANALYTICS Cortex Analyst semantic view."
+
+configuration:
+  log_level: INFO
+  trace_level: ALWAYS
+
+artifacts:
+  readme: README.md
+  setup_script: setup.sql
+  default_web_endpoint:
+    service: services.spend_360_service
+    endpoint: spend360
+  container_services:
+    images:
+      - /sc360_app_provider/images/repo/spend_360:latest
+
+privileges:
+  - CREATE COMPUTE POOL:
+      description: "Create the compute pool that runs the dashboard container."
+  - BIND SERVICE ENDPOINT:
+      description: "Expose the dashboard web UI endpoint."
+  - CREATE WAREHOUSE:
+      description: "Create a warehouse used to query the bundled Spend data."
+
+lifecycle_callbacks:
+  version_initializer: core.version_init

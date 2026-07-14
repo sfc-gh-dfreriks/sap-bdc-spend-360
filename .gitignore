@@ -1,0 +1,15 @@
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+*.tsbuildinfo
+*.p8
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+connections.toml
+config.toml
+*.log
+.DS_Store

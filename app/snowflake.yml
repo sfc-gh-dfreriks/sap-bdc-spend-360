@@ -1,0 +1,15 @@
+definition_version: 2
+entities:
+  pkg:
+    type: application package
+    identifier: SPEND_360_PKG
+    artifacts:
+      - src: app/*
+        dest: ./
+    manifest: app/manifest.yml
+
+  app:
+    type: application
+    from:
+      target: pkg
+    identifier: SPEND_360_APP
