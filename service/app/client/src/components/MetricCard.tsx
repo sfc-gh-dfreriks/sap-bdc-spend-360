@@ -1,6 +1,9 @@
+import React from 'react';
 import { cn } from '@/lib/utils';
 import {
   DollarSign,
+  Euro,
+  JapaneseYen,
   TrendingUp,
   TrendingDown,
   Receipt,
@@ -86,5 +89,16 @@ export default function MetricCard({ title, value, icon: Icon, accent, className
     </div>
   );
 }
+
+import { getCurrency } from '@/lib/currency';
+
+/** Money icon that follows the active reporting currency. */
+export const CurrencyIcon = React.forwardRef<SVGSVGElement, React.ComponentProps<typeof DollarSign>>(
+  (props, ref) => {
+    const c = getCurrency();
+    const Icon = c === 'EUR' ? Euro : c === 'JPY' ? JapaneseYen : DollarSign;
+    return React.createElement(Icon, { ...props, ref });
+  },
+) as typeof DollarSign;
 
 export { DollarSign, TrendingUp, TrendingDown, Receipt, Users, FileText, Building2, PieChart, Calculator, CreditCard, Calendar, Gauge, Activity };

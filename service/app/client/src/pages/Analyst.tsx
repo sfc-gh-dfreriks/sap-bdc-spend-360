@@ -3,7 +3,12 @@ import ReactMarkdown from 'react-markdown';
 import { Send, Trash2, ChevronDown, ChevronRight, Table as TableIcon, BarChart3, Maximize2, X } from 'lucide-react';
 import ReactECharts from 'echarts-for-react';
 
-const BASE = '/api';
+// Live: same-origin Express API. Static/public build: a serverless agent worker.
+const BASE = import.meta.env.VITE_STATIC === '1'
+  ? (import.meta.env.VITE_AGENT_URL ?? '').replace(/\/$/, '')
+  : '/api';
+const AGENT_UNAVAILABLE =
+  import.meta.env.VITE_STATIC === '1' && !import.meta.env.VITE_AGENT_URL;
 
 const SF_BLUE = '#058DC7';
 const PALETTE = ['#058DC7', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
@@ -278,6 +283,13 @@ export default function Analyst() {
         )}
       </div>
 
+      {/* Public build notice */}
+      {AGENT_UNAVAILABLE && (
+        <div className="border-b border-amber-300 bg-amber-50 px-5 py-2.5 text-center text-xs font-semibold uppercase tracking-wide text-amber-800">
+          Not available in public repo — the Cortex Analyst agent requires a live Snowflake connection
+        </div>
+      )}
+
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-5 py-4">
         {messages.length === 0 ? (
@@ -290,7 +302,8 @@ export default function Analyst() {
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
-                  className="rounded-lg border border-sf-primary/30 bg-sky-50/50 px-3 py-2.5 text-left text-xs text-sf-dark transition-colors hover:border-sf-primary hover:bg-sky-100/50"
+                  disabled={AGENT_UNAVAILABLE}
+                  className="rounded-lg border border-sf-primary/30 bg-sky-50/50 px-3 py-2.5 text-left text-xs text-sf-dark transition-colors hover:border-sf-primary hover:bg-sky-100/50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {q}
                 </button>
@@ -476,13 +489,13 @@ export default function Analyst() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask a question about your spend..."
-            disabled={sending}
+            placeholder={AGENT_UNAVAILABLE ? 'Agent not available in the public build' : 'Ask a question about your spend...'}
+            disabled={sending || AGENT_UNAVAILABLE}
             className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-sf-primary focus:ring-1 focus:ring-sf-primary disabled:opacity-50"
           />
           <button
             onClick={() => sendMessage(input)}
-            disabled={!input.trim() || sending}
+            disabled={!input.trim() || sending || AGENT_UNAVAILABLE}
             className="flex items-center gap-2 rounded-lg bg-sf-primary px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-sf-dark disabled:opacity-50"
           >
             <Send className="h-4 w-4" />

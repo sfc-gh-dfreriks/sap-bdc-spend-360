@@ -13,3 +13,4 @@ connections.toml
 config.toml
 *.log
 .DS_Store
+__pycache__/

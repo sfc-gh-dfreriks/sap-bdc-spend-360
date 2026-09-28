@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { fetchFilters } from '@/lib/api';
+import { setCurrency as setActiveCurrency, type Currency } from '@/lib/currency';
 
 interface FilterContextType {
   categories: string[];
@@ -9,12 +10,14 @@ interface FilterContextType {
   selectedCompanies: string[];
   setSelectedCompanies: (v: string[]) => void;
   loading: boolean;
+  currency: Currency;
+  setCurrency: (c: Currency) => void;
 }
 
 const FilterContext = createContext<FilterContextType>({
   categories: [], selectedCategories: [], setSelectedCategories: () => {},
   companies: [], selectedCompanies: [], setSelectedCompanies: () => {},
-  loading: true,
+  loading: true, currency: 'USD', setCurrency: () => {},
 });
 
 export function FilterProvider({ children }: { children: ReactNode }) {
@@ -23,6 +26,8 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const [companies, setCompanies] = useState<string[]>([]);
   const [selectedCompanies, setSelectedCompanies] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currency, setCurrencyState] = useState<Currency>('USD');
+  const setCurrency = (c: Currency) => { setActiveCurrency(c); setCurrencyState(c); };
 
   useEffect(() => {
     fetchFilters()
@@ -36,7 +41,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
 
   return React.createElement(
     FilterContext.Provider,
-    { value: { categories, selectedCategories, setSelectedCategories, companies, selectedCompanies, setSelectedCompanies, loading } },
+    { value: { categories, selectedCategories, setSelectedCategories, companies, selectedCompanies, setSelectedCompanies, loading, currency, setCurrency } },
     children
   );
 }

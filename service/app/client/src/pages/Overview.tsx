@@ -2,7 +2,7 @@ import { useFilters } from '@/hooks/useFilters';
 import { useQuery } from '@/hooks/useQuery';
 import { fetchOverview } from '@/lib/api';
 import { formatDollar, formatPct, formatNumber } from '@/lib/utils';
-import MetricCard, { DollarSign, Receipt, Building2, FileText } from '@/components/MetricCard';
+import MetricCard, { CurrencyIcon, Receipt, Building2, FileText } from '@/components/MetricCard';
 import ChartCard from '@/components/ChartCard';
 import ReactECharts from 'echarts-for-react';
 
@@ -23,7 +23,7 @@ export default function Overview() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard title="Total Spend" value={formatDollar(k.totalSpend)} icon={DollarSign} accent="border-cyan-300/50 bg-gradient-to-br from-cyan-50 to-sky-50" delta={`${formatNumber(k.poLines)} PO lines`} deltaType="neutral" />
+        <MetricCard title="Total Spend" value={formatDollar(k.totalSpend)} icon={CurrencyIcon} accent="border-cyan-300/50 bg-gradient-to-br from-cyan-50 to-sky-50" delta={`${formatNumber(k.poLines)} PO lines`} deltaType="neutral" />
         <MetricCard title="Suppliers" value={formatNumber(k.suppliers)} icon={Building2} accent="border-purple-300/50 bg-gradient-to-br from-purple-50 to-indigo-50" delta={`${formatNumber(k.categories)} categories`} deltaType="neutral" />
         <MetricCard title="On-Contract Spend" value={formatPct(k.contractPct)} icon={FileText} accent="border-emerald-300/50 bg-gradient-to-br from-emerald-50 to-green-50" delta={k.contractPct >= 70 ? 'Strong compliance' : 'Opportunity'} deltaType={k.contractPct >= 70 ? 'positive' : 'negative'} />
         <MetricCard title="Avg PO Value" value={formatDollar(k.avgPoValue)} icon={Receipt} accent="border-amber-300/50 bg-gradient-to-br from-amber-50 to-orange-50" delta="Per line item" deltaType="neutral" />

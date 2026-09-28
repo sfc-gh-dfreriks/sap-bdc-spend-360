@@ -1,5 +1,6 @@
 import { LayoutDashboard, Boxes, Truck, FileCheck2, Table2, Bot, Check, GitBranch, ShieldAlert, Leaf, PiggyBank } from 'lucide-react';
 import { useFilters } from '@/hooks/useFilters';
+import { CURRENCIES } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 
 export type PageId = 'overview' | 'categories' | 'suppliers' | 'supplier-risk' | 'sustainability' | 'savings' | 'contracts' | 'purchase-orders' | 'lineage' | 'analyst';
@@ -56,11 +57,11 @@ function FilterGroup({ label, items, selected, setSelected }: {
 
 export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
   const { categories, selectedCategories, setSelectedCategories,
-          companies, selectedCompanies, setSelectedCompanies } = useFilters();
+          companies, selectedCompanies, setSelectedCompanies, currency, setCurrency } = useFilters();
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col bg-gradient-to-b from-sf-dark to-sf-deeper text-white">
       <div className="flex flex-col gap-1.5 border-b border-white/10 px-5 py-4">
-        <img src="/snowflake_logo.svg" alt="Snowflake" className="h-7 w-auto self-start" />
+        <img src={`${import.meta.env.BASE_URL}snowflake_logo.svg`} alt="Snowflake" className="h-7 w-auto self-start" />
         <span className="text-lg font-bold tracking-tight text-white">SAP BDC Spend 360</span>
       </div>
       <nav className="flex-1 overflow-y-auto px-3 py-3">
@@ -79,6 +80,19 @@ export default function Sidebar({ activePage, onNavigate }: SidebarProps) {
           })}
         </ul>
       </nav>
+      <div className="border-t border-white/10 px-4 py-3">
+        <span className="text-xs font-semibold uppercase tracking-wider text-sf-pale/70">Reporting Currency</span>
+        <div className="mt-2 flex gap-1" role="group" aria-label="Reporting currency">
+          {CURRENCIES.map((c) => (
+            <button key={c} onClick={() => setCurrency(c)} aria-pressed={currency === c}
+              className={cn('flex-1 rounded px-2 py-1 text-xs font-medium transition-colors',
+                currency === c ? 'bg-sf-primary text-white' : 'bg-white/5 text-sf-pale/80 hover:bg-white/10')}>
+              {c}
+            </button>
+          ))}
+        </div>
+        <p className="mt-1.5 text-[10px] leading-snug text-sf-pale/50">PO lines converted at ECB rates on PO date</p>
+      </div>
       <FilterGroup label="Category" items={categories} selected={selectedCategories} setSelected={setSelectedCategories} />
       <FilterGroup label="Company" items={companies} selected={selectedCompanies} setSelected={setSelectedCompanies} />
       <div className="border-t border-white/10 px-5 py-3">

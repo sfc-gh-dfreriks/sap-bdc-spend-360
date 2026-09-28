@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FilterProvider } from '@/hooks/useFilters';
+import { FilterProvider, useFilters } from '@/hooks/useFilters';
 import Sidebar, { NAV_ITEMS, type PageId } from '@/components/Sidebar';
 import Overview from '@/pages/Overview';
 import Categories from '@/pages/Categories';
@@ -30,6 +30,7 @@ function AppShell() {
   const navItem = NAV_ITEMS.find((n) => n.id === activePage)!;
   const Icon = navItem.icon;
   const PageComponent = PAGE_COMPONENTS[activePage];
+  const { currency } = useFilters();
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar activePage={activePage} onNavigate={setActivePage} />
@@ -38,7 +39,7 @@ function AppShell() {
           <Icon className="h-6 w-6 text-sf-primary" />
           <h1 className="text-2xl font-bold text-sf-deeper">{navItem.label}</h1>
         </div>
-        {PageComponent ? <PageComponent /> : null}
+        {PageComponent ? <PageComponent key={currency} /> : null}
       </main>
     </div>
   );
