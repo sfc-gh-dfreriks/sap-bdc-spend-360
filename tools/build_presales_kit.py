@@ -475,6 +475,7 @@ def build_setup(F):
          f"{F['app_listing']} — install the one for your region"],
         ["Live demo app", "The running Native App in the demo account.", F.get("native_app_url") or "—"],
         ["Public static build", "A credential-free browser build for rehearsal. No Snowflake behind it, so Ask the Agent will not answer.", F["public_url"]],
+        ["Source repository", "All SQL, the Native App, deploy scripts and these kit builders. Public.", F["repo"]],
         ["Your own account", "Run the SQL, then demo through Snowflake Intelligence.", "See 05_Architecture_and_Install"],
     ], widths=[1.3, 3.0, 2.4])
 
