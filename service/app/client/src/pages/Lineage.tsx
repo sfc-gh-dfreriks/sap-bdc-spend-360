@@ -2,7 +2,6 @@ import { useQuery } from '@/hooks/useQuery';
 import { fetchLineage } from '@/lib/api';
 import { formatNumber } from '@/lib/utils';
 import ChartCard from '@/components/ChartCard';
-import DataTable from '@/components/DataTable';
 import { ChevronRight } from 'lucide-react';
 
 const TONE: Record<string, string> = {
@@ -13,6 +12,12 @@ const TONE: Record<string, string> = {
   ai: 'border-purple-300 bg-purple-50 text-purple-900',
 };
 
+/** Long Snowflake identifiers break at dots/underscores instead of widening the table. */
+function Ident({ value }: { value: unknown }) {
+  const s = String(value ?? '');
+  return <span className="font-mono text-[11px] leading-snug [overflow-wrap:anywhere]">{s.replace(/([._])/g, '$1\u200b')}</span>;
+}
+
 export default function Lineage() {
   const { data, loading, error } = useQuery(() => fetchLineage(), []);
   if (loading) return <div className="h-64 animate-pulse rounded-xl bg-gray-200" />;
@@ -20,6 +25,7 @@ export default function Lineage() {
   if (!data) return null;
   const layers = data.layers ?? [];
   const products = data.products ?? [];
+  const curated = data.curated ?? [];
 
   return (
     <div className="space-y-6">
@@ -33,17 +39,17 @@ export default function Lineage() {
       <ChartCard title="Medallion Lineage — SAP BDC → Snowflake → Application">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-stretch">
           {layers.map((layer: any, i: number) => (
-            <div key={layer.name} className="flex flex-1 items-stretch gap-2">
-              <div className={`flex-1 rounded-xl border p-4 ${TONE[layer.tone] ?? TONE.sap}`}>
+            <div key={layer.name} className="flex min-w-0 flex-1 items-stretch gap-2">
+              <div className={`min-w-0 flex-1 rounded-xl border p-4 ${TONE[layer.tone] ?? TONE.sap}`}>
                 <p className="text-sm font-bold">{layer.name}</p>
                 <ul className="mt-2 space-y-1">
-                  {layer.objects.map((o: string) => (
-                    <li key={o} className="font-mono text-[11px] leading-snug opacity-90">{o}</li>
+                  {(layer.objects ?? []).map((o: string) => (
+                    <li key={o} className="opacity-90"><Ident value={o} /></li>
                   ))}
                 </ul>
               </div>
               {i < layers.length - 1 && (
-                <div className="hidden items-center lg:flex"><ChevronRight className="h-5 w-5 text-gray-400" /></div>
+                <div className="hidden shrink-0 items-center lg:flex"><ChevronRight className="h-5 w-5 text-gray-400" /></div>
               )}
             </div>
           ))}
@@ -51,17 +57,39 @@ export default function Lineage() {
       </ChartCard>
 
       <ChartCard title="SAP BDC Source Data Products">
-        <DataTable columns={[
-          { key: 'sapSystem', label: 'SAP Source System' },
-          { key: 'dataProduct', label: 'BDC Data Product' },
-          { key: 'l0Object', label: 'L0 Object (Bronze)' },
-          { key: 'l1Object', label: 'L1 / Curated Object' },
-          { key: 'usage', label: 'Used For' },
-          { key: 'rows', label: 'Rows', format: (v: any) => formatNumber(v) },
-        ]} data={products} />
-        <p className="mt-3 text-xs text-gray-500">
-          Curated L2 tables: {(data.curated ?? []).map((c: any) => `${c.object} (${formatNumber(c.rows)} rows)`).join(' · ')}.
-          {data.note ? ` ${data.note}` : ''}
+        <div className="overflow-x-auto rounded-lg border border-gray-200">
+          <table className="w-full table-fixed text-sm">
+            <colgroup>
+              <col className="w-[13%]" /><col className="w-[16%]" /><col className="w-[25%]" />
+              <col className="w-[21%]" /><col className="w-[16%]" /><col className="w-[9%]" />
+            </colgroup>
+            <thead>
+              <tr className="bg-sf-dark text-left text-white">
+                <th className="px-3 py-2.5 font-medium">SAP Source System</th>
+                <th className="px-3 py-2.5 font-medium">BDC Data Product</th>
+                <th className="px-3 py-2.5 font-medium">L0 Object (Bronze)</th>
+                <th className="px-3 py-2.5 font-medium">L1 / Curated Object</th>
+                <th className="px-3 py-2.5 font-medium">Used For</th>
+                <th className="px-3 py-2.5 text-right font-medium">Rows</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((p: any, i: number) => (
+                <tr key={`${p.dataProduct}-${i}`} className={`align-top ${i % 2 === 0 ? 'bg-white' : 'bg-sky-50/50'}`}>
+                  <td className="px-3 py-2 text-gray-700">{p.sapSystem}</td>
+                  <td className="px-3 py-2 font-medium text-gray-800">{p.dataProduct}</td>
+                  <td className="px-3 py-2 text-gray-700"><Ident value={p.l0Object} /></td>
+                  <td className="px-3 py-2 text-gray-700"><Ident value={p.l1Object} /></td>
+                  <td className="px-3 py-2 text-xs text-gray-600">{p.usage}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-gray-700">{p.rows == null ? '—' : formatNumber(p.rows)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-gray-500">
+          {curated.length > 0 && <>Curated L2 tables: {curated.map((c: any) => `${c.object} (${formatNumber(c.rows)} rows)`).join(' · ')}. </>}
+          {data.note}
         </p>
       </ChartCard>
     </div>
