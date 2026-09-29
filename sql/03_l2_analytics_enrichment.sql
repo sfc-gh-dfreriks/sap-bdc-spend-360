@@ -104,3 +104,16 @@ create or replace TABLE SAP_SPEND_360.ANALYTICS.DT_SUPPLIER_RISK (
 	ANNUAL_SPEND NUMBER(38,0),
 	SUPPLIER_SINCE DATE
 );
+
+-- Lineage row counts, bundled into the Native App (consumer accounts have no SAP_BDC_DEMO_* access)
+create or replace table SAP_SPEND_360.ANALYTICS.LINEAGE_COUNTS as
+select
+  (select count(*) from SAP_SPEND_360.SAP_BDC_L1.PURCHASE_ORDER_ITEM) as PO_ITEM,
+  (select count(*) from SAP_SPEND_360.SAP_BDC_L1.SUPPLIER) as SUPPLIER,
+  (select count(*) from SAP_BDC_DEMO_PURCHASE_CONTRACT.BDCCONNECT.PURCHASECONTRACTITEM) as CONTRACT_ITEM,
+  (select count(*) from SAP_SPEND_360.ANALYTICS.DT_SPEND_360) as DT_SPEND,
+  (select count(*) from SAP_SPEND_360.ANALYTICS.DT_SUPPLIER_RISK) as DT_RISK,
+  (select count(*) from SAP_SPEND_360.ANALYTICS.DT_CATEGORY_HIERARCHY) as DT_CATEGORY,
+  (select count(*) from SAP_SPEND_360.ANALYTICS.DT_SAVINGS_OPPORTUNITY) as DT_SAVINGS,
+  (select count(*) from SAP_SPEND_360.ANALYTICS.DT_INVOICE_SPEND) as DT_INVOICE,
+  (select count(*) from SAP_SPEND_360.ANALYTICS.FX_RATES_DAILY) as FX_DAILY;

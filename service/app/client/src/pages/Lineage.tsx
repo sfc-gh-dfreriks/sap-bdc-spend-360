@@ -56,8 +56,13 @@ export default function Lineage() {
           { key: 'dataProduct', label: 'BDC Data Product' },
           { key: 'l0Object', label: 'L0 Object (Bronze)' },
           { key: 'l1Object', label: 'L1 / Curated Object' },
+          { key: 'usage', label: 'Used For' },
           { key: 'rows', label: 'Rows', format: (v: any) => formatNumber(v) },
         ]} data={products} />
+        <p className="mt-3 text-xs text-gray-500">
+          Curated L2 tables: {(data.curated ?? []).map((c: any) => `${c.object} (${formatNumber(c.rows)} rows)`).join(' · ')}.
+          {data.note ? ` ${data.note}` : ''}
+        </p>
       </ChartCard>
     </div>
   );

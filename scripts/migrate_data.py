@@ -23,7 +23,7 @@ from cryptography.hazmat.backends import default_backend
 # FX_RATES_CALENDAR is a view in the source (tools/load_fx_rates.py); it is
 # materialised as a table in the package so the app can convert PO currencies.
 TABLES = ["DT_SPEND_360", "DT_SUPPLIER_RISK", "DT_CATEGORY_HIERARCHY",
-          "DT_SAVINGS_OPPORTUNITY", "DT_INVOICE_SPEND", "FX_RATES_CALENDAR"]
+          "DT_SAVINGS_OPPORTUNITY", "DT_INVOICE_SPEND", "FX_RATES_CALENDAR", "LINEAGE_COUNTS"]
 SRC_SCHEMA = "SAP_SPEND_360.ANALYTICS"
 PKG = "SPEND_360_PKG"
 STG = "SPEND_STAGING"

@@ -27,6 +27,8 @@ GRANT SELECT ON VIEW app_data.DT_INVOICE_SPEND TO APPLICATION ROLE app_public;
 -- Daily ECB reference rates (USD per unit), used to convert PO document currency.
 CREATE OR REPLACE VIEW app_data.FX_RATES_CALENDAR AS SELECT * FROM shared_data.FX_RATES_CALENDAR;
 GRANT SELECT ON VIEW app_data.FX_RATES_CALENDAR TO APPLICATION ROLE app_public;
+CREATE OR REPLACE VIEW app_data.LINEAGE_COUNTS AS SELECT * FROM shared_data.LINEAGE_COUNTS;
+GRANT SELECT ON VIEW app_data.LINEAGE_COUNTS TO APPLICATION ROLE app_public;
 
 -- Enriched Spend Intelligence semantic view over the bundled APP_DATA views.
 create or replace semantic view app_data.SAP_SPEND_360_ANALYTICS

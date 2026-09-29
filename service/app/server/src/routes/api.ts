@@ -156,10 +156,9 @@ router.get("/api/purchase-orders", async (req, res) => {
 router.get("/api/lineage", async (_req, res) => {
   try {
     const c = (await runQuery(
-      `SELECT
-         (SELECT COUNT(*) FROM SAP_BDC_DEMO_PURCHASE_ORDER.BDCCONNECT.PURCHASEORDERITEM) AS l0_po,
-         (SELECT COUNT(*) FROM SAP_BDC_DEMO_SUPPLIER.BDCCONNECT.SUPPLIER) AS l0_supplier,
-         (SELECT COUNT(*) FROM APP_DATA.DT_SPEND_360) AS dt_spend`))[0] as any;
+      `SELECT PO_ITEM AS po_item, SUPPLIER AS supplier, CONTRACT_ITEM AS contract_item, DT_SPEND AS dt_spend, DT_RISK AS dt_risk, DT_CATEGORY AS dt_category, DT_SAVINGS AS dt_savings, DT_INVOICE AS dt_invoice, FX_DAILY AS fx_daily FROM APP_DATA.LINEAGE_COUNTS`))[0] as any;
+    const p = (sapSystem: string, dataProduct: string, l0Object: string, l1Object: string, rows: unknown, usage: string) =>
+      ({ sapSystem, dataProduct, l0Object, l1Object, rows, usage });
     res.json({
       app: "SAP BDC Spend 360",
       database: "SAP_SPEND_360",
@@ -169,15 +168,24 @@ router.get("/api/lineage", async (_req, res) => {
         "zero-copy data products (L0), organized into passthrough views (L1), curated into a gold spend fact and " +
         "unified semantic view (L2), and served to this app and the SAP Spend Analyst Cortex Agent — no ETL, no data movement.",
       products: [
-        { sapSystem: "S/4HANA — Sourcing & Procurement", dataProduct: "Purchase Order", l0Object: "SAP_BDC_DEMO_PURCHASE_ORDER.BDCCONNECT.PURCHASEORDERITEM", l1Object: "SAP_BDC_L1.PURCHASE_ORDER_ITEM", rows: c.l0_po },
-        { sapSystem: "S/4HANA — Business Partner", dataProduct: "Supplier", l0Object: "SAP_BDC_DEMO_SUPPLIER.BDCCONNECT.SUPPLIER", l1Object: "SAP_BDC_L1.SUPPLIER", rows: c.l0_supplier },
-        { sapSystem: "S/4HANA / Ariba — Contracts", dataProduct: "Purchase Contract", l0Object: "SAP_BDC_DEMO_PURCHASE_CONTRACT (contract linkage)", l1Object: "via PURCHASECONTRACT on spend fact", rows: null },
+        p("S/4HANA — Sourcing & Procurement", "Purchase Order", "SAP_BDC_DEMO_PURCHASE_ORDER.BDCCONNECT.PURCHASEORDERITEM", "SAP_BDC_L1.PURCHASE_ORDER_ITEM", c.po_item, "Spend fact: PO lines, amounts, categories, buyers (real)"),
+        p("S/4HANA — Business Partner", "Supplier", "SAP_BDC_DEMO_SUPPLIER.BDCCONNECT.SUPPLIER", "SAP_BDC_L1.SUPPLIER", c.supplier, "Supplier master / vendor identity"),
+        p("S/4HANA / Ariba — Contracts", "Purchase Contract", "SAP_BDC_DEMO_PURCHASE_CONTRACT.BDCCONNECT.PURCHASECONTRACTITEM", "PURCHASECONTRACT on SAP_BDC_L1.PURCHASE_ORDER_ITEM", c.contract_item, "On-/off-contract compliance & maverick spend"),
       ],
+      curated: [
+        { object: "ANALYTICS.DT_SPEND_360", rows: c.dt_spend },
+        { object: "ANALYTICS.DT_SUPPLIER_RISK", rows: c.dt_risk },
+        { object: "ANALYTICS.DT_CATEGORY_HIERARCHY", rows: c.dt_category },
+        { object: "ANALYTICS.DT_SAVINGS_OPPORTUNITY", rows: c.dt_savings },
+        { object: "ANALYTICS.DT_INVOICE_SPEND", rows: c.dt_invoice },
+        { object: "ANALYTICS.FX_RATES_DAILY", rows: c.fx_daily },
+      ],
+      note: "PO spend, categories, buyers and contract linkage come from real SAP BDC Purchase Order lines; supplier risk, ESG/diversity scores, category taxonomy, savings opportunities and invoice spend are representative enrichment values. Currency conversion uses daily ECB reference rates (FX_RATES_DAILY).",
       layers: [
         { name: "SAP Source Systems", tone: "sap", objects: ["SAP S/4HANA Procurement", "SAP Ariba"] },
         { name: "L0 — Bronze (BDC Zero-Copy)", tone: "bronze", objects: ["SAP_BDC_DEMO_PURCHASE_ORDER", "SAP_BDC_DEMO_SUPPLIER", "SAP_BDC_DEMO_PURCHASE_CONTRACT"] },
         { name: "L1 — Silver (Passthrough Views)", tone: "silver", objects: ["SAP_BDC_L1.PURCHASE_ORDER_ITEM", "SAP_BDC_L1.SUPPLIER"] },
-        { name: "L2 — Gold (Dynamic Table + Semantic View)", tone: "gold", objects: ["ANALYTICS.DT_SPEND_360", "SEMANTIC.SAP_SPEND_360_ANALYTICS"] },
+        { name: "L2 — Gold (Dynamic Table + Semantic View)", tone: "gold", objects: ["ANALYTICS.DT_SPEND_360", "ANALYTICS.DT_SUPPLIER_RISK", "ANALYTICS.DT_SAVINGS_OPPORTUNITY", "ANALYTICS.FX_RATES_DAILY", "SEMANTIC.SAP_SPEND_360_ANALYTICS"] },
         { name: "AI + Application", tone: "ai", objects: ["AGENTS.SAP_SPEND_ANALYST (Cortex Agent)", "SAP BDC Spend 360 (React)"] },
       ],
     });
