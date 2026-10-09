@@ -3,7 +3,7 @@ import { useQuery } from '@/hooks/useQuery';
 import { fetchContracts } from '@/lib/api';
 import { formatDollar } from '@/lib/utils';
 import ChartCard from '@/components/ChartCard';
-import ReactECharts from 'echarts-for-react';
+import ReactECharts from '@/components/Chart';
 
 export default function Contracts() {
   const { selectedCategories, selectedCompanies } = useFilters();

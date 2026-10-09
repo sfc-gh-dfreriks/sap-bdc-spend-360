@@ -6,7 +6,7 @@ import MetricCard from '@/components/MetricCard';
 import { Building2, PieChart, Truck } from 'lucide-react';
 import ChartCard from '@/components/ChartCard';
 import DataTable from '@/components/DataTable';
-import ReactECharts from 'echarts-for-react';
+import ReactECharts from '@/components/Chart';
 
 export default function Suppliers() {
   const { selectedCategories, selectedCompanies } = useFilters();

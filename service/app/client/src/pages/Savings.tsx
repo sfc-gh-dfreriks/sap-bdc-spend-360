@@ -4,7 +4,7 @@ import { formatDollar, formatNumber } from '@/lib/utils';
 import MetricCard from '@/components/MetricCard';
 import ChartCard from '@/components/ChartCard';
 import DataTable from '@/components/DataTable';
-import ReactECharts from 'echarts-for-react';
+import ReactECharts from '@/components/Chart';
 import { PiggyBank, TrendingUp, Loader, Target } from 'lucide-react';
 
 export default function Savings() {
