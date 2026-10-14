@@ -25,10 +25,11 @@ TARGETS = {
     "spend": (PAGES + "spend-360-public/", ["Supplier Risk", "Contract Compliance"]),
     "wc": (PAGES + "working-capital-360-public/", ["Cash & Liquidity", "Accounts Receivable"]),
     "erp": ("http://localhost:5182/", ["Company Comparison", "BDC Sources & Lineage"]),
+    "enterprise": (PAGES + "enterprise-ontology/", ["Enterprise Scenario Studio", "Impact Map"]),
 }
 # The last real page in each app; sidebar filter values follow it in DOM order.
 LAST_PAGE = {"finance": "Cortex Analyst", "supply": "Cortex Analyst", "people": "Ask the Agent",
-             "spend": "Ask the Agent", "wc": "Ask the Agent", "erp": "Ask the Agent"}
+             "spend": "Ask the Agent", "wc": "Ask the Agent", "erp": "Ask the Agent", "enterprise": "Ask"}
 SKIP_NAV = {"All", "None", "USD", "EUR", "JPY"}
 VALUE = re.compile(r"^[-+]?[$€¥£]?[-+]?\d[\d,.]*\s?(%|[KMBT]|d|x|days)?$|^[-+]?[$€¥£]\d")
 
@@ -54,6 +55,19 @@ def kpis(text, limit=8):
                         .replace("Crm", "CRM").replace("Sap", "SAP").replace("Po ", "PO "),
                         "value": nxt, "note": note[:60]})
         if len(out) >= limit:
+            break
+    return out
+
+
+def enterprise_kpis(text):
+    """Enterprise Ontology cards print label (mixed case), value, note - e.g. 'Revenue (Finance)', '$44.4M'."""
+    lines = [x.strip() for x in text.split("\n") if x.strip()]
+    val = re.compile(r"^[-+]?[$€¥£]?[\d,.]+[KMB]?( nodes)?$")
+    out = []
+    for i in range(len(lines) - 2):
+        if len(lines[i]) < 40 and not val.match(lines[i]) and val.match(lines[i + 1]):
+            out.append({"label": lines[i], "value": lines[i + 1], "note": lines[i + 2][:60]})
+        if len(out) >= 5:
             break
     return out
 
@@ -113,7 +127,7 @@ def main():
                     shots.append(str(f))
                 except Exception as e:  # noqa: BLE001
                     print(key, "could not open", label, str(e)[:60])
-            result[key] = {"url": url, "nav": nav, "kpis": ontology_kpis(main_text) if key == "ontology" else kpis(main_text), "shots": shots,
+            result[key] = {"url": url, "nav": nav, "kpis": ontology_kpis(main_text) if key == "ontology" else enterprise_kpis(main_text) if key == "enterprise" else kpis(main_text), "shots": shots,
                            "shot_labels": ["Overview"] + feats[: len(shots) - 1]}
             print(f"{key:9s} {len(nav):2d} pages  {len(result[key]['kpis'])} KPIs  {len(shots)} shots")
         b.close()

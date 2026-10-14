@@ -47,7 +47,7 @@ P = [  # key, title, blurb, asset repo, public repo, local app dir, ports, app, 
     ("ontology", "SAP Supply Chain Ontology", "Ontology layer over supply chain data: classes, relations, knowledge graph and disruption scenarios.",
      "supply-chain-ontology", "supply-chain-ontology", "supply_chain_ontology_react", "3009 / 5179",
      None, [], "Supply_Chain_Ontology_Presales_Kit"),
-    ("people", "SAP People 360", "Headcount, attrition, compensation, diversity, performance, learning and recruiting.",
+    ("people", "SAP People 360", "Headcount, attrition, compensation, diversity, performance, learning and recruiting, plus an HR onboarding scenario: live web sourcing for a backordered laptop and a simulated SuccessFactors write-back.",
      "sap-bdc-people-360", "people-360-public", "people_360_react", "3006 / 5180",
      "PEOPLE_360_APP", ["PEOPLE_360_ORG", "SAP_BDC_PEOPLE_360_DEMO"], "People_360_Presales_Kit"),
     ("spend", "SAP Spend 360", "Spend by category and supplier, contract compliance, supplier risk, ESG and savings, with currency conversion.",
@@ -58,6 +58,10 @@ P = [  # key, title, blurb, asset repo, public repo, local app dir, ports, app, 
      "WORKING_CAPITAL_360_APP", ["WORKING_CAPITAL_360_ORG", "SAP_BDC_WORKING_CAPITAL_360_DEMO"], "Working_Capital_360_Presales_Kit"),
     ("erp", "SAP Cloud ERP 360", "Cross-line-of-business command centre joining Finance, Spend and People by company.",
      None, None, "erp_360_react", "3008 / 5182", None, [], None),
+    ("enterprise", "SAP Enterprise Ontology", "Master ontology over the six 360 apps: golden-record crosswalk, customer and supplier 360, "
+     "knowledge graph, and a scenario engine for supplier failure, plant outage, customer default, FX, payment terms and workforce.",
+     "enterprise-ontology", "enterprise-ontology", "enterprise_ontology_react", "3011 / 5186",
+     None, [], "Enterprise_Ontology_Presales_Kit"),
 ]
 
 

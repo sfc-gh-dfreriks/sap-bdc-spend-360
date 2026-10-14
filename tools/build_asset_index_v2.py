@@ -32,6 +32,7 @@ SK = HOME / "Documents/SAP/SAP Skills"
 SAP = HOME / "Documents/SAP"
 GH = "https://github.com/sfc-gh-dfreriks/"
 PAGES = "https://sfc-gh-dfreriks.github.io/"
+MKT = "https://app.snowflake.com/marketplace/internal/listing/"
 OUT = HOME / "Downloads/SAP_BDC_360_Demo_Asset_Index_V2.docx"
 SHOTS = pathlib.Path("/tmp/portfolio")
 IMG = SHOTS / "_docx"
@@ -58,7 +59,7 @@ P = [
     ("ontology", "SAP Supply Chain Ontology", "Ontology layer over supply chain data: classes, relations, knowledge graph and disruption scenarios.",
      "supply-chain-ontology", "supply-chain-ontology", "supply_chain_ontology_react", "3009 / 5179",
      None, [], "Supply_Chain_Ontology_Presales_Kit"),
-    ("people", "SAP People 360", "Headcount, attrition, compensation, diversity, performance, learning and recruiting.",
+    ("people", "SAP People 360", "Headcount, attrition, compensation, diversity, performance, learning and recruiting, plus an HR onboarding scenario: live web sourcing for a backordered laptop and a simulated SuccessFactors write-back.",
      "sap-bdc-people-360", "people-360-public", "people_360_react", "3006 / 5180",
      "PEOPLE_360_APP", ["PEOPLE_360_ORG", "SAP_BDC_PEOPLE_360_DEMO"], "People_360_Presales_Kit"),
     ("spend", "SAP Spend 360", "Spend by category and supplier, contract compliance, supplier risk, ESG and savings, with currency conversion.",
@@ -67,11 +68,15 @@ P = [
     ("wc", "SAP Working Capital 360", "Receivables, payables and inventory working capital: DSO, DPO, DIO and cash conversion.",
      "sap-bdc-working-capital-360", "working-capital-360-public", "working_capital_360_react", "3010 / 5185",
      "WORKING_CAPITAL_360_APP", ["WORKING_CAPITAL_360_ORG", "SAP_BDC_WORKING_CAPITAL_360_DEMO"], "Working_Capital_360_Presales_Kit"),
+    ("enterprise", "SAP Enterprise Ontology", "Master ontology over the six 360 apps: golden-record crosswalk, customer and supplier 360, "
+     "knowledge graph, and a scenario engine for supplier failure, plant outage, customer default, FX, payment terms and workforce.",
+     "enterprise-ontology", "enterprise-ontology", "enterprise_ontology_react", "3011 / 5186",
+     None, [], "Enterprise_Ontology_Presales_Kit"),
 ]
 
 # Band colour per demo, so each section is recognisable at a glance.
 ACCENT = {"finance": "1B3A57", "sales": "0E7C86", "supply": "2E5AAC", "ontology": "5B3F8C",
-          "people": "B4580E", "spend": "1B7F4B", "wc": "9A2A4A", "erp": "3C4A5A"}
+          "people": "B4580E", "spend": "1B7F4B", "wc": "9A2A4A", "erp": "3C4A5A", "enterprise": "4A3B7A"}
 
 # Data and AI stack. The SAP BDC data products are summarised from each repo's
 # sql/01_l0_sources.md; semantic views and agents come from SHOW AGENTS / USE_CASES.md.
@@ -95,6 +100,9 @@ STACK = {
            "(worklist, dispute, promise to pay), Cash Flow, Bank Account, Physical Inventory Document",
            "SAP_WORKING_CAPITAL_360.SEMANTIC.SAP_WORKING_CAPITAL_360_ANALYTICS",
            "SAP_WORKING_CAPITAL_360.AGENTS.SAP_WORKING_CAPITAL_ANALYST"),
+    "enterprise": ("No SAP sources of its own: an ontology (CORE ONT_*/KG_*) and golden-record crosswalk (XWALK) over the "
+                   "Finance, Sales, People, Spend, Working Capital and Supply Chain 360 layers, with SCENARIO views over Supply Chain 360",
+                   "SAP_ENTERPRISE_ONTOLOGY.SEMANTIC.SAP_ENTERPRISE_360", "SAP_ENTERPRISE_ONTOLOGY.AGENTS.SAP_ENTERPRISE_ANALYST"),
     "erp": ("No sources of its own: joins the Finance 360, Spend 360 and People 360 analytics layers by company",
             "SAP_ERP_360.SEMANTIC.SAP_ERP_360_ANALYTICS", "SAP_ERP_360.AGENTS.SAP_ERP_ANALYST"),
 }
@@ -285,6 +293,16 @@ def acct_url(conn):
 
 def use_cases(key, repo):
     """Parse docs/USE_CASES.md: the summary table plus each section's business question."""
+    if key == "enterprise":
+        # Role/Question table under "## Use cases" in the enterprise docs; no numbered sections.
+        doc = SK / "enterprise_ontology_react/docs/enterprise/05-scenarios-and-use-cases.md"
+        if not doc.exists():
+            return []
+        sect = doc.read_text().split("## Use cases", 1)[-1].split("\n## ", 1)[0]
+        rows = [[str(i), q.strip(), role.strip(), ""]
+                for i, (role, q) in enumerate(re.findall(r"^\| ([^|]+?) \| ([^|]+?) \|$", sect, re.M)[1:], 1)
+                if not role.startswith("---")]
+        return rows
     path = SK / (repo or "erp_360_react") / "docs/USE_CASES.md"
     if key == "erp":
         path = SK / "erp_360_react/docs/USE_CASES.md"
@@ -486,9 +504,9 @@ for i, (k, title, blurb, repo, pub, local, ports, appn, lst, kit) in enumerate(P
             for conn, lbl in REG:
                 r = listing(conn, n)
                 rws.append([("Native App" if r and r["is_application"] == "true" else "Data share") if conn == REG[0][0] else "",
-                            lbl, r["global_name"] if r else "not published", r["uniform_listing_locator"] if r else "—"])
+                            lbl, ("url", MKT + r["global_name"], MKT + r["global_name"]) if r else "not published"])
         body(doc, "Internal Marketplace listings", size=11, color=RGBColor.from_string(color), after=2)
-        table(doc, ["Listing", "Region", "Global name", "Uniform listing locator"], rws, widths=[1.0, 1.4, 1.3, 3.2], size=8.5)
+        link_table(doc, ["Listing", "Region", "Internal Marketplace link"], rws, widths=[1.0, 1.4, 4.5])
 
     files = kit_files(kit)
     if files:
