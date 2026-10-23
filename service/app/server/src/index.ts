@@ -5,6 +5,7 @@ dotenv.config({ path: path.resolve(import.meta.dirname, "../../.env") });
 
 import express from "express";
 import cors from "cors";
+import askCortexRouter from "./routes/askCortex.js";
 import apiRouter from "./routes/api.js";
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(express.json());
 app.get("/healthcheck", (_req, res) => res.status(200).send("ok"));
 
 app.use(apiRouter);
+app.use(askCortexRouter);
 
 const clientDist = process.env.CLIENT_DIST;
 if (clientDist) {

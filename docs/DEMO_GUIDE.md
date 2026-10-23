@@ -16,11 +16,14 @@ adds AI — no pipelines, full SAP context preserved.
 4. **Supplier Risk** — risk matrix, high-risk & single-source suppliers, risk by region.
 5. **Sustainability & Diversity** — ESG pillars, sustainable spend, diverse spend.
 6. **Savings Pipeline** — savings by lever & status, realized vs identified.
-7. **Ask the Agent** — live questions to `SAP_SPEND_ANALYST`:
+7. **Ask Cortex** — on any page, click **Ask Cortex about <page>** (or a suggested
+   question) for a Cortex analysis of that page's live numbers, e.g. "Which high-spend
+   suppliers are the biggest risk?" on Supplier Risk.
+8. **Ask the Agent** — live questions to `SAP_SPEND_ANALYST`:
    - "What is our diverse and sustainable spend?"
    - "Which suppliers are highest risk and single-source?"
    - "What savings are identified by lever?"
-8. **Recap** — zero-ETL, governed, enriched, AI-ready, one-click distribution.
+9. **Recap** — zero-ETL, governed, enriched, AI-ready, one-click distribution.
 
 ## Key points to land
 - Total spend visibility (PO + non-PO) — **already inside Snowflake**, no ETL.

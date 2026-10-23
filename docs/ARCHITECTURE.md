@@ -41,6 +41,12 @@ taxonomy, savings). No ETL, no copy, full SAP business context preserved.
                                             React + Express on SPCS
 ```
 
+**Ask Cortex** sits beside the agent: `server/src/routes/askCortex.ts` runs a fixed set
+of fact queries per page over `APP_DATA.*` (or `ANALYTICS.*` locally) in the reporting
+currency, then calls `SNOWFLAKE.CORTEX.COMPLETE` (`claude-sonnet-4-5`, `CORTEX_MODEL` overrides) with
+those facts as the only source of numbers. It runs as a background job
+(`POST /api/ask-cortex` → poll `GET /api/ask-cortex/:id`).
+
 ## Spend Intelligence alignment (SAP)
 
 | SAP Spend Intelligence pillar | Where it lives |

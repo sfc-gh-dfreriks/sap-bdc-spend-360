@@ -105,3 +105,49 @@ export async function runAnalystSql(sql: string) {
   if (!res.ok) throw new Error(`API error: ${res.status}`);
   return res.json();
 }
+
+// ── Ask Cortex ──────────────────────────────────────────────────────────────
+// Live: POST starts a background job, then poll until done.
+// Static: answers for each topic's default question are baked at export time
+// (data/ask_cortex.json, keyed by askKey); free-text questions are routed to the
+// agent endpoint when one is configured, else a graceful message.
+export interface AskCortexRequest {
+  topic: string;
+  args?: Record<string, string>;
+  question?: string;
+}
+
+/** MUST match askKey() in scripts/export-static.mjs. */
+export function askKey(r: AskCortexRequest): string {
+  const a = Object.entries(r.args ?? {}).sort().map(([k, v]) => `${k}=${v}`).join('&');
+  return a ? `${r.topic}?${a}` : r.topic;
+}
+
+export async function askCortex(r: AskCortexRequest, signal?: AbortSignal): Promise<string> {
+  const req = { ...r, args: { currency: getCurrency(), ...(r.args ?? {}) } };
+  if (STATIC) {
+    const baked = ((await loadStaticFile('ask_cortex').catch(() => ({}))) ?? {}) as Record<string, string>;
+    if (!req.question && baked[askKey(req)]) return baked[askKey(req)];
+    if (AGENT_BASE && req.question) {
+      const res = await fetch(`${AGENT_BASE}/ask-cortex`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req), signal,
+      });
+      if (res.ok) return (await res.json()).answer;
+    }
+    return baked[askKey(req)] ??
+      '_Live Cortex analysis is not available in this static build. Run the app against Snowflake to ask your own question._';
+  }
+  const start = await fetch(`${BASE}/ask-cortex`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req), signal,
+  });
+  if (!start.ok) throw new Error(`Ask Cortex: ${start.status}`);
+  const { id } = await start.json();
+  for (let i = 0; i < 90; i++) {
+    await new Promise((res) => setTimeout(res, 2000));
+    if (signal?.aborted) throw new Error('cancelled');
+    const j = await liveGet<any>(`/ask-cortex/${id}`);
+    if (j.status === 'done') return j.answer;
+    if (j.status === 'error') throw new Error(j.error);
+  }
+  throw new Error('Ask Cortex timed out');
+}

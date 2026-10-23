@@ -39,10 +39,19 @@ Total spend visibility (PO + non-PO), spend **classification/taxonomy**,
 AI/semantic + KPIs. See the coverage table in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## The app
-A React dashboard: **Spend Overview, Categories, Suppliers, Supplier Risk,
+A React dashboard: **Ask Cortex** (first in the sidebar), **Spend Overview, Categories, Suppliers, Supplier Risk,
 Sustainability & Diversity, Savings Pipeline, Contract Compliance, Purchase
 Orders, BDC Sources & Lineage**, plus an **Ask the Agent** page (Cortex Analyst
 over the bundled `SAP_SPEND_360_ANALYTICS` view).
+
+**Ask Cortex.** Every data page has an **Ask Cortex about <page>** button under its
+header with two suggested questions, and the **Ask Cortex** page takes any question.
+The server gathers live facts for that page from the app's own tables (in the selected
+reporting currency) and asks Snowflake Cortex (`SNOWFLAKE.CORTEX.COMPLETE`, default model
+`claude-sonnet-4-5`, override with `CORTEX_MODEL`) for a markdown analysis. Calls run
+as a background job: `POST /api/ask-cortex` returns an id, the client polls
+`GET /api/ask-cortex/:id` every 2 s. The public build shows pre-baked answers for each
+page's default question.
 
 ## Currency conversion
 Each company buys in its own currency (USD, EUR, JPY), and `DT_SPEND_360.SPEND` is

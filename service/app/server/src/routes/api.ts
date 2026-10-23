@@ -19,13 +19,13 @@ const INV = "APP_DATA.DT_INVOICE_SPEND";
 // ---------------------------------------------------------------------------
 const FX = "APP_DATA.FX_RATES_CALENDAR";
 export const CURRENCIES = ["USD", "EUR", "JPY"] as const;
-type Ccy = (typeof CURRENCIES)[number];
+export type Ccy = (typeof CURRENCIES)[number];
 function currency(req: Request): Ccy {
   const c = String(req.query.currency ?? "USD").toUpperCase();
   return (CURRENCIES as readonly string[]).includes(c) ? (c as Ccy) : "USD";
 }
 /** Spend fact with SPEND / NET_PRICE in the target currency. `t` is whitelisted. */
-function spendIn(t: Ccy): string {
+export function spendIn(t: Ccy): string {
   return `(SELECT s.* EXCLUDE (SPEND, NET_PRICE), s.SPEND AS SPEND_LOCAL,
             s.SPEND * f.USD_PER_UNIT / tf.USD_PER_UNIT AS SPEND,
             s.NET_PRICE * f.USD_PER_UNIT / tf.USD_PER_UNIT AS NET_PRICE
@@ -33,12 +33,12 @@ function spendIn(t: Ccy): string {
           JOIN ${FX} f  ON f.RATE_DATE = s.PO_DATE AND f.CURRENCY = s.CURRENCY
           JOIN ${FX} tf ON tf.RATE_DATE = s.PO_DATE AND tf.CURRENCY = '${t}')`;
 }
-function supplierRiskIn(t: Ccy): string {
+export function supplierRiskIn(t: Ccy): string {
   return `(SELECT r.* EXCLUDE (ANNUAL_SPEND), COALESCE(x.SPEND, 0) AS ANNUAL_SPEND
           FROM ${SR} r LEFT JOIN (SELECT SUPPLIER, SUM(SPEND) AS SPEND FROM ${spendIn(t)} GROUP BY 1) x
             ON x.SUPPLIER = r.SUPPLIER)`;
 }
-function savingsIn(t: Ccy): string {
+export function savingsIn(t: Ccy): string {
   return `(SELECT o.* EXCLUDE (ESTIMATED_SAVINGS),
             ROUND(o.ESTIMATED_SAVINGS * x.CONV / NULLIF(x.RAW, 0)) AS ESTIMATED_SAVINGS
           FROM ${SVOP} o JOIN (SELECT c.CATEGORY, SUM(c.SPEND_LOCAL) AS RAW, SUM(c.SPEND) AS CONV

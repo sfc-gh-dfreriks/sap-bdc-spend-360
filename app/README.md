@@ -11,6 +11,9 @@ Spend Intelligence dashboard (React + Express) on Snowpark Container Services.
 - **Bundled data** — All spend, supplier-risk, ESG, category-hierarchy and
   savings data is packaged with the app (no external references). Runs
   immediately after install.
+- **Ask Cortex** — an **Ask Cortex about <page>** button on every data page (plus
+  an Ask Cortex page for any question) that sends that page's live numbers to
+  Snowflake Cortex for a written analysis and recommended actions.
 - **Ask the Agent** — Cortex Analyst over the bundled **`SAP_SPEND_360_ANALYTICS`**
   semantic view — the same model behind the account-level **`SAP_SPEND_ANALYST`**
   Cortex Agent.
@@ -32,5 +35,8 @@ diverse spend), category **taxonomy** (direct/indirect, addressable), and a
 
 ## Cortex access
 
-Grant the app `SNOWFLAKE.CORTEX_USER` so the "Ask the Agent" page can call
-Cortex Analyst.
+Grant the app `SNOWFLAKE.CORTEX_USER` so "Ask the Agent" can call Cortex Analyst
+and "Ask Cortex" can call `SNOWFLAKE.CORTEX.COMPLETE` (model `claude-sonnet-4-5`; enable
+cross-region inference if it is not available in your region). Without it, Ask
+Cortex shows a "not available in this installation" message. Check with
+`CALL <app>.CORE.CORTEX_SELFTEST();`.

@@ -15,7 +15,7 @@
 | 4 | Supplier risk | Supply risk manager | Supplier Risk |
 | 5 | Savings pipeline | CPO / finance | Savings |
 | 6 | Sustainable and diverse sourcing | ESG / supplier diversity lead | Sustainability |
-| 7 | Procurement copilot | Any buyer | Analyst (Cortex Agent) |
+| 7 | Procurement copilot | Any buyer | Ask Cortex; Analyst (Cortex Agent) |
 
 ## 1. Spend cube
 
@@ -81,7 +81,7 @@
 
 - **Persona:** Any buyer
 - **Business question:** Ask spend questions in plain English.
-- **Where in the app:** Analyst (Cortex Agent)
+- **Where in the app:** Ask Cortex (page analysis on every data page) and Analyst (Cortex Agent)
 - **Data used:** Semantic view SAP_SPEND_360_ANALYTICS
 - **Ask the agent:**
   - "Which suppliers grew spend the most year over year?"
