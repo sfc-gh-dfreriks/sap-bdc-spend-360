@@ -48,7 +48,7 @@ APP = pathlib.Path.home() / "Documents" / "SAP" / "SAP Skills" / "spend_360_reac
 SIDEBAR = APP / "client" / "src" / "components" / "Sidebar.tsx"
 API_ROUTES = APP / "server" / "src" / "routes" / "api.ts"
 ANALYST_SVC = APP / "server" / "src" / "services" / "analyst.ts"
-ANALYST_PAGE = APP / "client" / "src" / "pages" / "Analyst.tsx"
+ANALYST_PAGE = APP / "client" / "src" / "pages" / "AskCortexPage.tsx"
 APP_DEV_URL = "http://localhost:3007"
 
 REGION_CONNS = ["dfreriksdemo", "dfreriks_eu_demo", "dfreriks_apac_demo"]
@@ -322,10 +322,10 @@ def collect(cur) -> Facts:
 
     chips = []
     if ANALYST_PAGE.exists():
-        m = re.search(r"SUGGESTED_QUESTIONS\s*=\s*\[(.*?)\]", ANALYST_PAGE.read_text(), re.S)
+        m = re.search(r"(?:SUGGESTED_QUESTIONS|SUGGESTIONS)\s*=\s*\[(.*?)\]", ANALYST_PAGE.read_text(), re.S)
         if m:
             chips = re.findall(r"['\"]([^'\"]{15,})['\"]", m.group(1))
-    f.put("agent_questions", chips, f"{ANALYST_PAGE.name} SUGGESTED_QUESTIONS")
+    f.put("agent_questions", chips, f"{ANALYST_PAGE.name} SUGGESTIONS")
 
     app_kpis = None
     try:

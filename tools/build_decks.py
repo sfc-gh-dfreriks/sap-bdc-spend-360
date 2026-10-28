@@ -32,6 +32,8 @@ KIT = pathlib.Path.home() / "Documents" / "SAP" / "Spend_360_Presales_Kit"
 def load():
     f = json.loads(FACTS.read_text())["facts"]
     shots = {s["id"]: s["file"] for s in json.loads((SHOTS / "manifest.json").read_text())}
+    # the agent page is now "Ask Cortex" (sidebar id ask-cortex); keep the old key
+    shots.setdefault("analyst", shots.get("ask-cortex"))
     for sid, p in shots.items():
         if not pathlib.Path(p).exists():
             raise FileNotFoundError(f"screenshot missing for '{sid}': {p}")

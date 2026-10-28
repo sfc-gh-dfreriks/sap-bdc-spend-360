@@ -219,6 +219,8 @@ def add_shot_slide(prs, title_src, title, shots, notes, files):
 
 def main():
     files = {m["id"]: m["file"] for m in json.loads((SHOTS / "manifest.json").read_text())}
+    # the agent page is now "Ask Cortex" (sidebar id ask-cortex); keep the old key
+    files.setdefault("analyst", files.get("ask-cortex"))
     with tempfile.TemporaryDirectory() as td:
         tpl = pathlib.Path(td) / "template.pptx"
         tpl.write_bytes(subprocess.run(["git", "-C", str(ROOT), "show", f"{TEMPLATE_COMMIT}:{GUIDE}"],
