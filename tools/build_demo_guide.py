@@ -91,7 +91,7 @@ CONTENT = {
          2: ["A Cortex Agent answers plain-English questions over a governed semantic view."],
          3: ["Runs on SPCS with data, semantic view and UI bundled; nothing leaves Snowflake."],
          5: ["A self-contained Snowflake Native App built on SAP BDC data"],
-         9: ["Dashboards"], 10: ["Ask the Agent"], 11: ["Runs In Snowflake"]},
+         9: ["Dashboards"], 10: ["Ask Cortex"], 11: ["Runs In Snowflake"]},
         f"Tell them what they're about to see: {F['app_page_count']} pages covering {F['po_lines']:,} PO "
         f"lines from {F['suppliers']} suppliers in {F['categories']} categories, plus a live Cortex agent."),
     4: ({0: ["How It’s Built: BDC → Snowflake → App"],
@@ -108,13 +108,13 @@ CONTENT = {
         "Transition: 'Let me show you the app. The CPO wants to know where the money goes and how much "
         "of it is off contract.'"),
     6: ({0: ["The Demo Flow"],
-         1: ["Open the app: no setup, the data is already inside",
-             f"Overview: USD {TOTAL_M:.2f}M across {F['suppliers']} suppliers",
+         1: ["Open the app: no setup, it opens on the Executive Dashboard",
+             f"Executive Dashboard: USD {TOTAL_M:.2f}M across {F['suppliers']} suppliers",
              "Switch currency: EUR and JPY at historical ECB rates",
              f"Contracts: only {F['on_contract_pct_usd']:.0f}% of spend is on contract",
              f"Supplier Risk and ESG: {F['high_risk_suppliers']} high-risk suppliers",
              f"Savings Pipeline: USD {SAV_K:.0f}K across {F['savings_opportunities']} opportunities",
-             "Ask the Agent, then recap: zero-ETL, governed, AI-ready"]},
+             "Ask Cortex, then recap: zero-ETL, governed, AI-ready"]},
         "Roadmap for the live demo; don't read it aloud. Spend most time on Contract Compliance: "
         f"USD {OFF_M:.2f}M off contract is the headline."),
     7: ({0: ["Demo Act 1: The Dashboards"],
@@ -129,14 +129,15 @@ CONTENT = {
         f"Click through and narrate outcomes: 'We spend USD {TOTAL_M:.1f}M, but only "
         f"{F['on_contract_pct_usd']:.0f}% is on contract, so USD {OFF_M:.1f}M escapes our negotiated "
         "prices.' Switch the currency to EUR to show EU Operations in its own currency."),
-    8: ({0: ["Demo Act 2: Ask the Agent"],
+    8: ({0: ["Demo Act 2: Ask Cortex"],
          1: ["Ask in plain English: “What percent of spend is on contract by category?”, “Which suppliers "
              "are highest risk?” or “What is our savings pipeline by lever?”"],
-         2: ["SAP_SPEND_ANALYST maps the question to the bundled semantic view, generates governed SQL "
+         2: ["Ask Cortex (first in the sidebar) answers from the app's live numbers. In Snowflake Intelligence, "
+             "{ag} maps the question to the bundled semantic view, generates governed SQL "
              "and returns a chart with the exact query, so the answer is explainable."],
          4: ["Cortex Agent over a governed semantic view"]},
-        "The highlight. Type a question live; do NOT pre-load it. Expand the generated SQL to show "
-        "the answer is governed and explainable."),
+        "The highlight. Type a question live into Ask Cortex; do NOT pre-load it. To show governed "
+        "SQL, ask the same question of the Cortex Agent in Snowflake Intelligence."),
     9: ({0: ["Lead with the CPO question, not architecture. PO lines, suppliers and currencies are real "
              "BDC data; risk, ESG, taxonomy and savings are demo enrichment. Currency conversion uses "
              "ECB rates on each PO date."],
@@ -185,13 +186,13 @@ CONTENT = {
 SHOT_SLIDES = [
     ("The Dashboards: Spend, Categories & Contracts",
      ["overview", "categories", "contracts", "purchase-orders"],
-     "Screens for Act 1: Spend Overview, Categories, Contract Compliance and Purchase Orders."),
+     "Screens for Act 1: Executive Dashboard, Categories, Contract Compliance and Purchase Orders."),
     ("The Dashboards: Suppliers, Risk, ESG & Savings",
      ["suppliers", "supplier-risk", "sustainability", "savings"],
      "Suppliers and concentration, the supplier risk matrix, Sustainability & Diversity, and the "
      "Savings Pipeline by lever and status."),
-    ("Ask the Agent", ["analyst"],
-     "The Ask the Agent page. Ask a live question and expand the SQL."),
+    ("Ask Cortex", ["analyst"],
+     "The Ask Cortex page (first in the sidebar). Ask a live question of your own."),
 ]
 
 

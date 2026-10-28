@@ -31,7 +31,7 @@ sap-bdc-spend-360/
 ## Architecture at a glance
 `SAP BDC Procurement (L0)` → `SAP_BDC_L1 curated views (L1)` →
 `ANALYTICS spend + risk/ESG/savings (L2)` → `SAP_SPEND_360_ANALYTICS semantic view` →
-`SAP_SPEND_ANALYST` + Native App "Ask the Agent". Detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+`SAP_SPEND_ANALYST` (Snowflake Intelligence) + Native App (Ask Cortex). Detail: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Spend Intelligence coverage
 Total spend visibility (PO + non-PO), spend **classification/taxonomy**,
@@ -39,10 +39,11 @@ Total spend visibility (PO + non-PO), spend **classification/taxonomy**,
 AI/semantic + KPIs. See the coverage table in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## The app
-A React dashboard: **Ask Cortex** (first in the sidebar), **Spend Overview, Categories, Suppliers, Supplier Risk,
-Sustainability & Diversity, Savings Pipeline, Contract Compliance, Purchase
-Orders, BDC Sources & Lineage**, plus an **Ask the Agent** page (Cortex Analyst
-over the bundled `SAP_SPEND_360_ANALYTICS` view).
+A React dashboard: **Ask Cortex** (first in the sidebar), **Executive Dashboard** (second, and the
+page the app opens on), **Categories, Suppliers, Supplier Risk, Sustainability & Diversity, Savings
+Pipeline, Contract Compliance, Purchase Orders, BDC Sources & Lineage**. The bundled
+`SAP_SPEND_360_ANALYTICS` semantic view also backs the `SAP_SPEND_ANALYST` Cortex Agent, which you
+query in Snowflake Intelligence.
 
 **Ask Cortex.** Every data page has an **Ask Cortex about <page>** button under its
 header with two suggested questions, and the **Ask Cortex** page takes any question.

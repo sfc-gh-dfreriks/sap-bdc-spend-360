@@ -10,7 +10,6 @@ import Savings from '@/pages/Savings';
 import Contracts from '@/pages/Contracts';
 import PurchaseOrders from '@/pages/PurchaseOrders';
 import Lineage from '@/pages/Lineage';
-import Analyst from '@/pages/Analyst';
 import AskCortexPage from '@/pages/AskCortexPage';
 import AskCortex from '@/components/AskCortex';
 
@@ -37,7 +36,6 @@ const PAGE_COMPONENTS: Record<string, React.FC> = {
   contracts: Contracts,
   'purchase-orders': PurchaseOrders,
   lineage: Lineage,
-  analyst: Analyst,
 };
 
 function AppShell() {

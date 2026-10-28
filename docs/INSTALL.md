@@ -71,7 +71,7 @@ Locator: `ORGDATACLOUD$INTERNAL$SPEND_360_ORG`.
 ```sql
 GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO APPLICATION SPEND_360_APP;
 ```
-This grant powers both **Ask the Agent** and **Ask Cortex**. Ask Cortex uses the
+This grant powers **Ask Cortex**, which uses the
 `claude-sonnet-4-5` model; if it is not hosted in your region, enable cross-region
 inference (`ALTER ACCOUNT SET CORTEX_ENABLED_CROSS_REGION = 'ANY_REGION'`). Without
 Cortex access, Ask Cortex shows a "not available in this installation" message and the

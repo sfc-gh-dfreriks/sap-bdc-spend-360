@@ -27,8 +27,7 @@ DESC = ("Self-contained SAP Spend 360 Spend Intelligence dashboard (React + Expr
         "Container Services) with bundled spend, supplier-risk, ESG and savings data. Ask Cortex: "
         "every page has an 'Ask Cortex about <page>' button that sends the page's live numbers to "
         "Snowflake Cortex for a written analysis and recommended actions, plus an Ask Cortex page for "
-        "any question. Also includes a Cortex Analyst 'Ask the Agent' page powered by the "
-        "SAP_SPEND_360_ANALYTICS semantic model. No data setup required.")
+        "any question. Opens on the Executive Dashboard. No data setup required.")
 
 
 def connect(conn_name, **kw):

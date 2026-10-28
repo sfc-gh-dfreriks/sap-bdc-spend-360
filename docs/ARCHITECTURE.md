@@ -35,8 +35,8 @@ taxonomy, savings). No ETL, no copy, full SAP business context preserved.
  └──────────────────────────────────────────────────────────────────────────┘
               │                                        │
               ▼                                        ▼
-   SAP_SPEND_ANALYST agent                  Native App "Ask the Agent"
-   (Snowflake Intelligence)                 (Cortex Analyst in-app)
+   SAP_SPEND_ANALYST agent                  Native App "Ask Cortex"  
+   (Snowflake Intelligence)                 (Cortex COMPLETE in-app) 
                                                         │
                                             React + Express on SPCS
 ```

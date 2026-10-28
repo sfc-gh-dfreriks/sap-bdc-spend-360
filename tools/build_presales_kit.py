@@ -52,7 +52,8 @@ DATE = date.today().strftime("%d %B %Y")
 NAME = "SAP Spend 360"
 
 PAGE_PURPOSE = {
-    "Spend Overview": "Total spend, PO lines, suppliers, contract coverage, trend",
+    "Ask Cortex": "Any question, answered by Cortex from the app's live numbers",
+    "Executive Dashboard": "Total spend, PO lines, suppliers, contract coverage, trend",
     "Categories": "Spend by category and the L1/L2/L3 taxonomy, addressable spend",
     "Suppliers": "Top suppliers, concentration, tail spend",
     "Supplier Risk": "Risk score by tier and region, single-source exposure",
@@ -61,7 +62,6 @@ PAGE_PURPOSE = {
     "Contract Compliance": "On- versus off-contract spend by category and buyer",
     "Purchase Orders": "The PO-line table, filterable",
     "BDC Sources & Lineage": "Which SAP BDC data products feed each layer",
-    "Ask the Agent": "Natural-language questions over the spend semantic view",
 }
 
 
@@ -135,7 +135,7 @@ def agent_scope_callout(doc, F):
     callout(
         doc,
         "What the agent knows",
-        f"Ask the Agent reads the semantic view, which covers {sv['tables']} tables "
+        f"The SAP_SPEND_ANALYST agent (Snowflake Intelligence) reads the semantic view, which covers {sv['tables']} tables "
         f"({', '.join(sv['table_names'])}) with {sv['dimensions']} dimensions, {sv['facts']} "
         f"facts and {sv['metrics']} metrics, and {sv['verified_queries']} verified queries. "
         f"It does not cover non-PO invoice spend. The agent does not yet use the currency "
@@ -277,18 +277,18 @@ def build_management_summary(F):
 
 PERSONAS = [
     ("Chief Procurement Officer", "Where does our money go, and how much of it do we control?",
-     "Spend Overview", [
-         ("Spend Overview", lambda F: f"Show spend, suppliers ({F['suppliers']}) and contract coverage ({F['on_contract_pct_usd']}% USD-equivalent)."),
+     "Executive Dashboard", [
+         ("Executive Dashboard", lambda F: f"Show spend, suppliers ({F['suppliers']}) and contract coverage ({F['on_contract_pct_usd']}% USD-equivalent)."),
          ("Contract Compliance", lambda F: f"{usd(F['off_contract_spend_usd'])} is off contract. That is the controllable number."),
          ("Savings Pipeline", lambda F: "Walk the five levers and their typical percentages. Identified, in progress and realised."),
-         ("Ask the Agent", lambda F: "Ask: 'Which categories have the most off-contract spend?'"),
+         ("Ask Cortex", lambda F: "Ask: 'Which categories have the most off-contract spend?'"),
      ], "Contract leakage is the fastest money in procurement, and this shows it by category and buyer."),
     ("Category manager", "Which categories are fragmented, and where can I consolidate?",
      "Categories", [
          ("Categories", lambda F: f"Spend by category; {F['spend_by_category_usd'][0]['CATEGORY']} is the largest. Show the L1/L2/L3 taxonomy."),
          ("Suppliers", lambda F: f"Top 10 suppliers hold {F['top10_supplier_share_pct_usd']}% of spend. The long tail is the consolidation target."),
          ("Savings Pipeline", lambda F: "Point at tail-spend and off-contract consolidation levers."),
-         ("Ask the Agent", lambda F: "Ask: 'What is supplier concentration in IT Hardware?'"),
+         ("Ask Cortex", lambda F: "Ask: 'What is supplier concentration in IT Hardware?'"),
      ], "Consolidation starts with seeing the tail, and the tail is visible here without a spreadsheet."),
     ("Supply risk manager", "Which suppliers could hurt us if they failed?",
      "Supplier Risk", [
@@ -298,14 +298,14 @@ PERSONAS = [
      ], "Risk and spend in one model lets you prioritise mitigation by exposure, not by alphabet."),
     ("CFO / finance partner", "Is procurement delivering savings we can see in the P&L?",
      "Savings Pipeline", [
-         ("Spend Overview", lambda F: "Switch the reporting currency: every PO line converts at its own PO-date ECB rate, not one period-end rate."),
+         ("Executive Dashboard", lambda F: "Switch the reporting currency: every PO line converts at its own PO-date ECB rate, not one period-end rate."),
          ("Savings Pipeline", lambda F: "Show status: identified versus realised. Realised is what finance counts."),
          ("Contract Compliance", lambda F: "Off-contract spend is where negotiated savings leak."),
      ], "Pair with Finance 360 or Cloud ERP 360 to put spend next to the P&L by company."),
     ("Data architect", "How is this built, and could we run it on our data?",
      "BDC Sources & Lineage", [
          ("BDC Sources & Lineage", lambda F: "Show the path: SAP BDC data product to L1 view to gold table to semantic view to app."),
-         ("Ask the Agent", lambda F: "Ask a question, then expand the generated SQL: governed and explainable."),
+         ("Ask Cortex", lambda F: "Ask a question live; for generated SQL, ask SAP_SPEND_ANALYST in Snowflake Intelligence."),
          ("Purchase Orders", lambda F: f"Record-level PO lines ({F['po_lines']:,}) are the grain of the gold table."),
      ], "The deliverable is the SQL, the semantic view and the agent. Swap the L0 layer for your own data products."),
 ]
@@ -348,12 +348,12 @@ def build_quick_start(F):
     h1(doc, "The ten-minute path")
     table(doc, ["#", "Page", "Do and say", "Time"], [
         ["1", "—", "Open the app cold. Nothing installed, nothing loaded; purchase orders and suppliers are SAP BDC data products.", "1 min"],
-        ["2", "Spend Overview", f"Spend, suppliers, contract coverage: {F['on_contract_pct_usd']}% on contract. Flip the currency switch once.", "1 min"],
+        ["2", "Executive Dashboard", f"Spend, suppliers, contract coverage: {F['on_contract_pct_usd']}% on contract. Flip the currency switch once.", "1 min"],
         ["3", "Categories", f"Spend by category and taxonomy. {F['spend_by_category_usd'][0]['CATEGORY']} leads.", "1 min"],
         ["4", "Contract Compliance", f"{usd(F['off_contract_spend_usd'])} off contract. This is where procurement leaders lean in.", "2 min"],
         ["5", "Supplier Risk", f"{F['high_risk_suppliers']} high-risk and {F['single_source_suppliers']} single-source suppliers. Representative scores.", "1 min"],
         ["6", "Savings Pipeline", f"Five levers, 2-6% each; {usd(F['savings_total_usd'])} pipeline by status (representative).", "1 min"],
-        ["7", "Ask the Agent", "Ask a built-in question, then expand the generated SQL.", "2 min"],
+        ["7", "Ask Cortex", "Ask a suggested question live; show governed SQL via the agent in Snowflake Intelligence.", "2 min"],
         ["8", "BDC Sources & Lineage", "Close here for a technical room: the zero-copy proof.", "1 min"],
     ], widths=[0.3, 1.5, 4.2, 0.7])
 
@@ -414,7 +414,7 @@ def build_architecture(F):
         ["L2 Gold", f"{len(F['analytics_objects'])} tables in ANALYTICS, {F['analytics_rows']:,} rows",
          "DT_SPEND_360 (the spend fact) plus " + ", ".join(F["enrichment_tables"]) + "."],
         ["Semantic", sv_fqn.split(".", 1)[1], f"{sv['tables']} tables, {sv['dimensions']} dimensions, {sv['facts']} facts, {sv['metrics']} metrics, {sv['relationships']} relationships."],
-        ["Agent", agent, "Cortex Agent for natural-language spend questions; behind the Ask the Agent page."],
+        ["Agent", agent, "Cortex Agent for natural-language spend questions, used in Snowflake Intelligence."],
         ["App", f"{F['app_page_count']} pages", "React client and Express server, packaged as a Native App."],
     ], widths=[0.9, 2.1, 3.7])
 
@@ -474,7 +474,7 @@ def build_setup(F):
         ["Native App listing", f"The {F['app_page_count']}-page dashboard with data bundled in. No grants, no data setup.",
          f"{F['app_listing']} — install the one for your region"],
         ["Live demo app", "The running Native App in the demo account.", F.get("native_app_url") or "—"],
-        ["Public static build", "A credential-free browser build for rehearsal. No Snowflake behind it, so Ask the Agent will not answer.", F["public_url"]],
+        ["Public static build", "A credential-free browser build for rehearsal. No Snowflake behind it, so free-text Ask Cortex questions will not answer.", F["public_url"]],
         ["Source repository", "All SQL, the Native App, deploy scripts and these kit builders. Public.", F["repo"]],
         ["Your own account", "Run the SQL, then demo through Snowflake Intelligence.", "See 05_Architecture_and_Install"],
     ], widths=[1.3, 3.0, 2.4])

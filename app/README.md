@@ -5,7 +5,7 @@ Spend Intelligence dashboard (React + Express) on Snowpark Container Services.
 
 ## What's inside
 
-- **Interactive dashboard** — Spend Overview, Categories, Suppliers, **Supplier
+- **Interactive dashboard** — Ask Cortex, Executive Dashboard (opens first), Categories, Suppliers, **Supplier
   Risk**, **Sustainability & Diversity**, **Savings Pipeline**, Contract
   Compliance, Purchase Orders.
 - **Bundled data** — All spend, supplier-risk, ESG, category-hierarchy and
@@ -14,9 +14,9 @@ Spend Intelligence dashboard (React + Express) on Snowpark Container Services.
 - **Ask Cortex** — an **Ask Cortex about <page>** button on every data page (plus
   an Ask Cortex page for any question) that sends that page's live numbers to
   Snowflake Cortex for a written analysis and recommended actions.
-- **Ask the Agent** — Cortex Analyst over the bundled **`SAP_SPEND_360_ANALYTICS`**
-  semantic view — the same model behind the account-level **`SAP_SPEND_ANALYST`**
-  Cortex Agent.
+- **Semantic view** — the bundled **`SAP_SPEND_360_ANALYTICS`** semantic view is the
+  same model behind the account-level **`SAP_SPEND_ANALYST`** Cortex Agent (use it in
+  Snowflake Intelligence; there is no separate agent page in the app).
 
 ## Spend Intelligence coverage
 
@@ -35,8 +35,7 @@ diverse spend), category **taxonomy** (direct/indirect, addressable), and a
 
 ## Cortex access
 
-Grant the app `SNOWFLAKE.CORTEX_USER` so "Ask the Agent" can call Cortex Analyst
-and "Ask Cortex" can call `SNOWFLAKE.CORTEX.COMPLETE` (model `claude-sonnet-4-5`; enable
+Grant the app `SNOWFLAKE.CORTEX_USER` so "Ask Cortex" can call `SNOWFLAKE.CORTEX.COMPLETE` (model `claude-sonnet-4-5`; enable
 cross-region inference if it is not available in your region). Without it, Ask
 Cortex shows a "not available in this installation" message. Check with
 `CALL <app>.CORE.CORTEX_SELFTEST();`.

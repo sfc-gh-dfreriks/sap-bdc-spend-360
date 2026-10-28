@@ -28,8 +28,8 @@ TARGETS = {
     "enterprise": (PAGES + "enterprise-ontology/", ["Enterprise Scenario Studio", "Impact Map"]),
 }
 # The last real page in each app; sidebar filter values follow it in DOM order.
-LAST_PAGE = {"finance": "Cortex Analyst", "supply": "Cortex Analyst", "people": "Ask the Agent",
-             "spend": "Ask the Agent", "wc": "Ask the Agent", "erp": "Ask the Agent", "enterprise": "Ask"}
+LAST_PAGE = {"finance": "BDC Sources & Lineage", "supply": "BDC Sources & Lineage", "people": "BDC Sources & Lineage",
+             "spend": "BDC Sources & Lineage", "wc": "BDC Sources & Lineage", "erp": "BDC Sources & Lineage", "enterprise": "BDC Lineage"}
 SKIP_NAV = {"All", "None", "USD", "EUR", "JPY"}
 VALUE = re.compile(r"^[-+]?[$€¥£]?[-+]?\d[\d,.]*\s?(%|[KMBT]|d|x|days)?$|^[-+]?[$€¥£]\d")
 
@@ -128,7 +128,7 @@ def main():
                 except Exception as e:  # noqa: BLE001
                     print(key, "could not open", label, str(e)[:60])
             result[key] = {"url": url, "nav": nav, "kpis": ontology_kpis(main_text) if key == "ontology" else enterprise_kpis(main_text) if key == "enterprise" else kpis(main_text), "shots": shots,
-                           "shot_labels": ["Overview"] + feats[: len(shots) - 1]}
+                           "shot_labels": ["Executive Dashboard"] + feats[: len(shots) - 1]}
             print(f"{key:9s} {len(nav):2d} pages  {len(result[key]['kpis'])} KPIs  {len(shots)} shots")
         b.close()
     (OUT / "portfolio.json").write_text(json.dumps(result, indent=1))

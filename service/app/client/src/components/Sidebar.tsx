@@ -1,15 +1,15 @@
-import { LayoutDashboard, Boxes, Truck, FileCheck2, Table2, Bot, Check, GitBranch, ShieldAlert, Leaf, PiggyBank, Sparkles } from 'lucide-react';
+import { LayoutDashboard, Boxes, Truck, FileCheck2, Table2, Check, GitBranch, ShieldAlert, Leaf, PiggyBank, Sparkles } from 'lucide-react';
 import { useFilters } from '@/hooks/useFilters';
 import { CURRENCIES } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 
-export type PageId = 'ask-cortex' | 'overview' | 'categories' | 'suppliers' | 'supplier-risk' | 'sustainability' | 'savings' | 'contracts' | 'purchase-orders' | 'lineage' | 'analyst';
+export type PageId = 'ask-cortex' | 'overview' | 'categories' | 'suppliers' | 'supplier-risk' | 'sustainability' | 'savings' | 'contracts' | 'purchase-orders' | 'lineage';
 
 export interface NavItem { id: PageId; label: string; icon: React.ElementType; }
 
 export const NAV_ITEMS: NavItem[] = [
   { id: 'ask-cortex', label: 'Ask Cortex', icon: Sparkles },
-  { id: 'overview', label: 'Spend Overview', icon: LayoutDashboard },
+  { id: 'overview', label: 'Executive Dashboard', icon: LayoutDashboard },
   { id: 'categories', label: 'Categories', icon: Boxes },
   { id: 'suppliers', label: 'Suppliers', icon: Truck },
   { id: 'supplier-risk', label: 'Supplier Risk', icon: ShieldAlert },
@@ -18,7 +18,6 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'contracts', label: 'Contract Compliance', icon: FileCheck2 },
   { id: 'purchase-orders', label: 'Purchase Orders', icon: Table2 },
   { id: 'lineage', label: 'BDC Sources & Lineage', icon: GitBranch },
-  { id: 'analyst', label: 'Ask the Agent', icon: Bot },
 ];
 
 interface SidebarProps { activePage: PageId; onNavigate: (page: PageId) => void; }

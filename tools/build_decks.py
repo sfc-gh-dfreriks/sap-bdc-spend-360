@@ -96,7 +96,7 @@ def o03_pattern(prs, f):
          f"Spend fact plus {len(f['enrichment_tables'])} enrichment tables (risk, ESG, taxonomy, savings)", SF_BLUE),
         ("SEM", "SAP Spend 360 Analytics semantic view",
          f"{sv['tables']} tables · {sv['dimensions']} dimensions · {sv['metrics']} metrics", VIOLET),
-        ("AI", "SAP Spend Analyst agent", "Cortex Agent, and Cortex Analyst inside the app", VIOLET),
+        ("AI", "SAP Spend Analyst agent", "Cortex Agent in Snowflake Intelligence, and Ask Cortex inside the app", VIOLET),
         ("APP", f"Native App — {f['app_page_count']} pages", "React + Express, data bundled, nothing to configure", DK2),
     ]
     y = TOP
@@ -119,7 +119,7 @@ def o04_app(prs, f, shots):
     caption(s, LEFT + 6.1, TOP, 3.0, "every page")
     stack(s, LEFT + 6.1, TOP + 0.30, 1.5, 3.0, [(f"· {p}", 9.5, False, DK1, 6) for p in pages[:half]])
     stack(s, LEFT + 7.65, TOP + 0.30, 1.5, 3.0, [(f"· {p}", 9.5, False, DK1, 6) for p in pages[half:]])
-    note(s, "Category, Company and Reporting Currency apply across every page. Shown: Spend Overview in USD.")
+    note(s, "Category, Company and Reporting Currency apply across every page. Shown: Executive Dashboard in USD.")
     return s
 
 
@@ -226,7 +226,7 @@ REP = "Representative enrichment values, converted to USD with the spend they si
 def demo(f, shots):
     prs = new_presentation()
     slides = [cover(prs, f, "App walkthrough")]
-    slides.append(shot_slide(prs, f, shots, "overview", "Spend Overview", "Where the money goes, at a glance", [
+    slides.append(shot_slide(prs, f, shots, "overview", "Executive Dashboard", "Where the money goes, at a glance", [
         ("shown", f"{usd(f['total_spend_usd'])} across {f['po_lines']:,} PO lines, all three companies.", SF_BLUE, 1.05),
         ("say", "Each company buys in its own currency; every line converts at its PO-date rate.", TEAL, 1.05),
         ("then", "Flip USD, EUR, JPY in the sidebar; point at trend and top suppliers.", DK2, 1.05)],
@@ -263,7 +263,7 @@ def demo(f, shots):
         ("path", "SAP BDC data product → L1 view → gold table → semantic view → app.", VIOLET, 1.3),
         ("sources", "Purchase Order (item) and Supplier data products.", TEAL, 1.0)],
         "Close here for a technical audience."))
-    slides.append(shot_slide(prs, f, shots, "analyst", "Ask the Agent", "Plain-English questions, governed SQL", [
+    slides.append(shot_slide(prs, f, shots, "analyst", "Ask Cortex", "Plain-English questions, answered from live numbers", [
         ("try", f"'{f['agent_questions'][3]}'", SF_BLUE, 1.0),
         ("then", "Expand the generated SQL.", DK2, 0.8),
         ("tip", "Agent spend is native currency: ask per company.", RED, 1.0)],
