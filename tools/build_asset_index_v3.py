@@ -7,6 +7,7 @@ Inputs, all read live beforehand:
   /tmp/portfolio/portfolio.json + PNGs tools/capture_portfolio.py (the running demos)
   /tmp/portfolio/{mfg,jco}/*.png      captures of http://localhost:5188 and :5187
   /tmp/mfg_spend_facts.json           mfg-use-cases/use_cases/01_multi_erp_spend/tools/spend_risk_facts.py
+  /tmp/mfg_o2c_facts.json             mfg-use-cases/use_cases/09_order_to_cash/tools/o2c_facts.py
 Repo facts, use cases and kit files are read from disk here.
 """
 import datetime as dt
@@ -390,6 +391,9 @@ MFG_UC = MFG / "use_cases/01_multi_erp_spend"
 MFG_KIT = SAP / "Multi_ERP_Spend_Presales_Kit"
 JCO = SK / "sap-jco-snowflake/sap_jco_extractor_react"
 MF = json.loads(pathlib.Path("/tmp/mfg_spend_facts.json").read_text())["facts"]
+O2C_UC = MFG / "use_cases/09_order_to_cash"
+O2C_KIT = SAP / "Order_to_Cash_Presales_Kit"
+OF = json.loads(pathlib.Path("/tmp/mfg_o2c_facts.json").read_text())["facts"]
 
 
 def sidebar(path):
@@ -431,12 +435,16 @@ def files_in(d, exts=(".docx", ".pptx", ".mp4", ".pdf", ".xlsx", ".md")):
 ACCENT["mfg"] = "2F6B3A"; ACCENT["jco"] = "0B5394"
 MFG_NAV = sidebar(MFG_UC / "app/client/src/components/Sidebar.tsx")
 JCO_NAV = sidebar(JCO / "client/src/components/Sidebar.tsx")
+O2C_NAV = sidebar(O2C_UC / "app/client/src/components/Sidebar.tsx")
 
 h1(doc, "What's new in V3")
 body(doc, "Changes since V2, each checked against the running apps, the repositories or the demo accounts on 2 November 2026.")
 for b_, t_ in [
     ("Multi-ERP Spend & Supplier Risk app. ", f"A new portable manufacturing use case: {len(MFG_NAV)} pages over six ERPs, with a public "
      "GitHub Pages demo and a full presales kit (decks, scripts, walkthrough video). See section 5."),
+    ("Orders to Cash app. ", f"Manufacturing use case 09: {len(O2C_NAV)} pages from quote to cash over SAP (ECC, S/4HANA, BW or "
+     "BDC per instance) plus Salesforce CPQ, carrier tracking, AR automation and bank statements, with OTIF, DSO, CEI, "
+     "disputes and cash application, a public GitHub Pages demo and a full presales kit. See section 5.2."),
     ("Supplier Optimization. ", "A scenario model for supplier consolidation, 70 rule-based issues each with a Cortex-generated "
      "remedy, and a Cortex recommendation across the portfolio."),
     ("Pipeline in 3D. ", "Data Factory, 3D Sankey and Lineage Constellation views of the pipeline, in both the Multi-ERP app "
@@ -637,7 +645,55 @@ for f in sorted(p.name for p in MFG_KIT.iterdir() if p.is_file()):
     bullet(doc, f, size=9)
 bullet(doc, f"screenshots/ ({len(list((MFG_KIT / 'screenshots').glob('*.png')))} PNGs)", size=9)
 
-h2(doc, "5.2 The modular SAP engine")
+# 5.2 Orders to Cash (mfg-use-cases use case 09)
+page_break(doc)
+h2(doc, "5.2 Orders to Cash")
+band(doc, "Orders to Cash", "Quote to cash across SAP and non-SAP sources: order book and CPQ quotes, fulfillment and OTIF with "
+     "carrier delivered dates, billing, receivables and DSO, collections and disputes, cash application and Customer 360.", color)
+ok = OF["overview"]["kpis"]
+kpi_tiles(doc, [
+    {"label": "Bookings", "value": m(ok["bookings"]), "note": f"{ok['lines']:,} order lines"},
+    {"label": "OTIF", "value": f"{ok['otif_pct']:.1f}%", "note": f"perfect order {ok['perfect_pct']:.1f}%"},
+    {"label": "DSO (Aug 2026)", "value": f"{ok['dso']:.1f} d", "note": f"best possible {ok['bpdso']:.1f} d"},
+    {"label": "Order to cash", "value": f"{ok['o2c_days']:.1f} d", "note": "order date to cash"},
+    {"label": "Open AR", "value": m(ok["open_ar"]), "note": f"{m(ok['past_due'])} past due"},
+    {"label": "Dispute rate", "value": f"{ok['dispute_pct']:.1f}%", "note": "share of invoices"},
+    {"label": "Auto-match", "value": f"{ok['auto_match_pct']:.1f}%", "note": f"{m(ok['unapplied'])} unapplied"},
+    {"label": "CEI (Aug 2026)", "value": f"{ok['cei']:.1f}%", "note": "collection effectiveness"},
+], color)
+framed_picture(doc, docx_img(O2C_KIT / "screenshots/01_overview.png"), 5.9,
+               "Orders to Cash · Executive Dashboard (live capture of http://localhost:5190)")
+body(doc, "What's inside", size=11, color=RGBColor.from_string(color), after=2)
+nav_cols(doc, O2C_NAV, color)
+shot_pair(doc, [(str(O2C_KIT / "screenshots/03_fulfillment.png"), "Fulfillment & OTIF"),
+                (str(O2C_KIT / "screenshots/06_collections.png"), "Collections & Disputes")])
+body(doc, "Data and AI", size=11, color=RGBColor.from_string(color), after=2)
+table(doc, ["Layer", "Objects"], [
+    ["Sources", "SAP (ECC, S/4HANA, BW or BDC per instance), Salesforce Sales Cloud + CPQ, carrier / TMS tracking, "
+                "AR automation and camt.053 bank statements, mapped to nine canonical objects"],
+    ["Database", f"`MFG_ORDER_TO_CASH` · {OF['bronze_tables']} bronze tables · {OF['adapter_views']} generated adapters"],
+    ["Semantic view", f"`{OF['semantic_view']['name']}`"],
+    ["Cortex agent", f"`{OF['agent']}` (Snowflake Intelligence)"],
+    ["dbt", f"`{OF['dbt_project']['name']}`, deployed from Git repository `MFG_ADMIN.GIT.MFG_USE_CASES`"],
+    ["Native App / listing", "None: deployed directly into the account"],
+], widths=[1.4, 5.5], size=8.5)
+body(doc, "Links and locations", size=11, color=RGBColor.from_string(color), after=2)
+rm = repo_meta("mfg-use-cases")
+link_table(doc, ["Asset", "Link / location", "Notes"], [
+    ["Source repository", ("url", GH + "mfg-use-cases", GH + "mfg-use-cases"),
+     f"{VIS.get('mfg-use-cases', '?')} · use_cases/09_order_to_cash · {rm['last'] if rm else '—'}"],
+    ["Public demo", ("url", PAGES + "mfg-order-to-cash-public/", PAGES + "mfg-order-to-cash-public/"), "Static snapshot, no login"],
+    ["Public site repository", ("url", GH + "mfg-order-to-cash-public", GH + "mfg-order-to-cash-public"),
+     VIS.get("mfg-order-to-cash-public", "?")],
+    ["Local app", ("url", "http://localhost:5190", "http://localhost:5190"), "server port 3015 · " + str(O2C_UC / "app")],
+], widths=[1.4, 3.8, 1.7])
+body(doc, "Presales kit", size=11, color=RGBColor.from_string(color), after=2)
+body(doc, str(O2C_KIT), size=8.5, color=GREY, after=2)
+for f in sorted(p.name for p in O2C_KIT.iterdir() if p.is_file()):
+    bullet(doc, f, size=9)
+bullet(doc, f"screenshots/ ({len(list((O2C_KIT / 'screenshots').glob('*.png')))} PNGs)", size=9)
+
+h2(doc, "5.3 The modular SAP engine")
 body(doc, "framework/engine in mfg-use-cases makes every use case portable: an instance declares which ERPs it runs on, and the "
      "engine resolves source tables and fields from SAP metadata rather than hard-coding them.")
 table(doc, ["Component", "What it does", "Where"], [
@@ -693,7 +749,7 @@ link_table(doc, ["Item", "Location", "Purpose"], [
     ["SAP BDC MCP server", ("url", GH + "sap-bdc-snowflake-mcp-server", GH + "sap-bdc-snowflake-mcp-server"), "MCP tools for BDC Connect on Snowflake"],
     ["Use case catalog", str(HOME / "Downloads/SAP_BDC_360_Use_Case_Catalog.docx"), "Use cases across the 360 apps"],
     ["Previous asset index (V2)", str(HOME / "Downloads/SAP_BDC_360_Demo_Asset_Index_V2.docx"), "Kept unchanged for reference"],
-    ["Manufacturing use cases", ("url", GH + "mfg-use-cases", GH + "mfg-use-cases"), "Portable multi-ERP use cases + SAP engine"],
+    ["Manufacturing use cases", ("url", GH + "mfg-use-cases", GH + "mfg-use-cases"), "Portable use cases (01 Multi-ERP Spend, 09 Orders to Cash) + SAP engine"],
     ["SAP JCo Extractor", ("url", GH + "sap-jco-snowflake", GH + "sap-jco-snowflake"), "RFC/BAPI extraction from SAP into Snowflake"],
     ["Marketplace listing index", str(HOME / "Downloads/SAP_BDC_360_Marketplace_Listings.docx"), "Listings in all three regions"],
     ["Skill: sap-bdc-360-app-lifecycle", "~/.snowflake/cortex/skills/sap-bdc-360-app-lifecycle", "Build, ship, publish and kit a 360 app"],
