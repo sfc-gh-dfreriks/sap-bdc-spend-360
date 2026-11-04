@@ -31,7 +31,10 @@ def product(title):
     return title.replace("SAP BDC ", "SAP ").replace(" Demo", "")
 
 
-idx = {n: {r["name"]: r for r in L[n]["rows"] if "360" in r["title"] and r["state"] == "PUBLISHED"} for n in ORDER}
+# The manufacturing use cases (mfg-use-cases) are listed alongside the 360 demos as Native Apps only.
+MFG_TITLES = {"Multi-ERP Spend & Supplier Risk", "Orders to Cash"}
+idx = {n: {r["name"]: r for r in L[n]["rows"]
+           if ("360" in r["title"] or r["title"] in MFG_TITLES) and r["state"] == "PUBLISHED"} for n in ORDER}
 groups = {}
 for n in ORDER:
     for name, r in idx[n].items():
@@ -47,8 +50,10 @@ for t, sz, b, c, a in (("SAP BDC 360 Demo Assets", 20, True, SAP_NAVY, 2),
 body(doc, "Every SAP BDC 360 demo is published to the Snowflake Internal Marketplace in three regions, as two "
           "listings: the Native App (the full dashboard with its data bundled, nothing to set up) and a data "
           "share (the analytics tables, semantic view and Cortex Agent, to query from your own account or use "
-          "in Snowflake Intelligence). Open the Internal Marketplace in the account for your region and search "
-          "for the listing title or global name below.")
+          "in Snowflake Intelligence). The two manufacturing use cases, Multi-ERP Spend & Supplier Risk and "
+          "Orders to Cash, are published as Native Apps only (bundled data, live Ask Cortex; switching source "
+          "systems needs the full mfg-use-cases deployment). Open the Internal Marketplace in the account for "
+          "your region and search for the listing title or global name below.")
 h1(doc, "Regional accounts")
 t = table(doc, ["Region", "Cloud region", "Account (Snowsight)"],
           [[REG[n][0], REG[n][1], acct_url(n)] for n in ORDER], widths=[1.5, 1.5, 3.7])

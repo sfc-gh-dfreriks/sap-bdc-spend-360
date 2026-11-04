@@ -282,6 +282,29 @@ def app(conn, name):
     return next((a for a in A.get(conn, []) if a["app"] == name), None)
 
 
+# Manufacturing use cases shipped as Native Apps with internal listings (mfg-use-cases framework/native_app).
+MFG_APPS = [("Multi-ERP Spend & Supplier Risk", "MULTI_ERP_SPEND_APP", "MULTI_ERP_SPEND_ORG"),
+            ("Orders to Cash", "ORDER_TO_CASH_APP", "ORDER_TO_CASH_ORG")]
+
+
+def native_app_tables(appn, name, color):
+    """Per-region Native App URLs and Internal Marketplace links for one app (same layout as section 4)."""
+    rws = []
+    for conn, lbl in REG:
+        a = app(conn, appn)
+        rws.append([lbl, ("url", "https://" + a["url"], a["url"]) if a and a["url"] else "not installed",
+                    f"{a['version']} patch {a['patch']}" if a else "—"])
+    body(doc, "Native App (Snowflake sign-in)", size=11, color=RGBColor.from_string(color), after=2)
+    link_table(doc, ["Region", "App URL", "Version"], rws, widths=[1.4, 4.2, 1.3])
+    rws = []
+    for conn, lbl in REG:
+        r = listing(conn, name)
+        rws.append(["Native App" if conn == REG[0][0] else "", lbl,
+                    ("url", MKT + r["global_name"], MKT + r["global_name"]) if r else "not published"])
+    body(doc, "Internal Marketplace listings", size=11, color=RGBColor.from_string(color), after=2)
+    link_table(doc, ["Listing", "Region", "Internal Marketplace link"], rws, widths=[1.0, 1.4, 4.5])
+
+
 def kit_files(kit):
     d = SAP / kit if kit else None
     if not d or not d.exists():
@@ -333,14 +356,16 @@ setup_page(doc)
 footer(doc)
 all_uc = {k: use_cases(k, repo) for k, _, _, repo, *_ in P}
 n_apps = sum(1 for k, *rest in P if rest[6] for conn, _ in REG if app(conn, rest[6]))
+n_apps += sum(1 for _, appn, _ in MFG_APPS for conn, _ in REG if app(conn, appn))
 n_list = sum(1 for k, *rest in P for n in rest[7] for conn, _ in REG if listing(conn, n))
+n_list += sum(1 for *_, n in MFG_APPS for conn, _ in REG if listing(conn, n))
 n_pages = sum(len(PF.get(k, {}).get("nav", [])) for k, *_ in P)
 
 # cover
 cov = doc.add_table(rows=1, cols=1); no_borders(cov)
 c = cov.rows[0].cells[0]; shade(c, NAVY_HEX); cell_margins(c, 14)
 run(c.paragraphs[0], "SAP BDC 360 Demo Portfolio", 26, True, RGBColor(0xFF, 0xFF, 0xFF))
-run(c.add_paragraph(), "Asset Index · V3 · 2 November 2026", 14, False, SNOW_BLUE)
+run(c.add_paragraph(), f"Asset Index · V3 · {dt.date.today():%-d %B %Y}", 14, False, SNOW_BLUE)
 run(c.add_paragraph(), "Every demo, what is inside it, what it shows, and where to find it: repositories, public sites, "
     "Native Apps, Marketplace listings and presales kits", 10, False, RGBColor(0xE6, 0xEE, 0xF4))
 fixed(cov, [W])
@@ -352,7 +377,7 @@ kpi_tiles(doc, [
     {"label": "Dashboard pages", "value": str(n_pages), "note": "across the seven apps"},
     {"label": "Documented use cases", "value": str(sum(len(v) for v in all_uc.values())), "note": "persona + business question"},
     {"label": "Regions", "value": "3", "note": "US West · EU · APAC"},
-    {"label": "Native App installs", "value": str(n_apps), "note": "6 apps × 3 regional accounts"},
+    {"label": "Native App installs", "value": str(n_apps), "note": "6 × 360 + 2 manufacturing, 3 regions"},
     {"label": "Marketplace listings", "value": str(n_list), "note": "apps + data shares, published"},
     {"label": "Cortex agents", "value": str(len(P)), "note": "one per demo"},
     {"label": "Public demo sites", "value": str(sum(1 for p in P if p[4])), "note": "GitHub Pages, no login"},
@@ -438,8 +463,12 @@ JCO_NAV = sidebar(JCO / "client/src/components/Sidebar.tsx")
 O2C_NAV = sidebar(O2C_UC / "app/client/src/components/Sidebar.tsx")
 
 h1(doc, "What's new in V3")
-body(doc, "Changes since V2, each checked against the running apps, the repositories or the demo accounts on 2 November 2026.")
+body(doc, f"Changes since V2, each checked against the running apps, the repositories or the demo accounts on {dt.date.today():%-d %B %Y}.")
 for b_, t_ in [
+    ("Manufacturing apps on the Internal Marketplace. ", "Multi-ERP Spend & Supplier Risk and Orders to Cash now ship as "
+     "self-contained Native Apps, listed as MULTI_ERP_SPEND_ORG and ORDER_TO_CASH_ORG in all three regions like the 360 "
+     "apps: every page, Ask Cortex, Field Mapping and SAP Metadata run live over bundled data. The source selection is "
+     "fixed (SAP A = ECC, SAP B = S/4HANA, all non-SAP on); switching sources needs the full deployment. See sections 5.1 and 5.2."),
     ("Multi-ERP Spend & Supplier Risk app. ", f"A new portable manufacturing use case: {len(MFG_NAV)} pages over six ERPs, with a public "
      "GitHub Pages demo and a full presales kit (decks, scripts, walkthrough video). See section 5."),
     ("Orders to Cash app. ", f"Manufacturing use case 09: {len(O2C_NAV)} pages from quote to cash over SAP (ECC, S/4HANA, BW or "
@@ -627,7 +656,8 @@ table(doc, ["Layer", "Objects"], [
     ["Semantic view", "`MFG_SPEND_RISK.SEMANTIC.MULTI_ERP_SPEND`"],
     ["Cortex agent", "`MFG_SPEND_RISK.AGENTS.MULTI_ERP_SPEND_ANALYST` (Snowflake Intelligence)"],
     ["dbt", "`MFG_SPEND_RISK.CONFIG.MULTI_ERP_SPEND_DBT`, deployed from Git repository `MFG_ADMIN.GIT.MFG_USE_CASES`"],
-    ["Native App / listing", "None: deployed directly into the account"],
+    ["Native App / listing", "`MULTI_ERP_SPEND_APP` from package `MULTI_ERP_SPEND_PKG`, internal listing `MULTI_ERP_SPEND_ORG`: "
+                             "bundled data, live Ask Cortex and saved scenarios; Apply (dbt) disabled"],
 ], widths=[1.4, 5.5], size=8.5)
 body(doc, "Links and locations", size=11, color=RGBColor.from_string(color), after=2)
 rm = repo_meta("mfg-use-cases")
@@ -639,6 +669,7 @@ link_table(doc, ["Asset", "Link / location", "Notes"], [
      VIS.get("mfg-multi-erp-spend-public", "?")],
     ["Local app", ("url", "http://localhost:5188", "http://localhost:5188"), "server port 3013 · " + str(MFG_UC / "app")],
 ], widths=[1.4, 3.8, 1.7])
+native_app_tables("MULTI_ERP_SPEND_APP", "MULTI_ERP_SPEND_ORG", color)
 body(doc, "Presales kit", size=11, color=RGBColor.from_string(color), after=2)
 body(doc, str(MFG_KIT), size=8.5, color=GREY, after=2)
 for f in sorted(p.name for p in MFG_KIT.iterdir() if p.is_file()):
@@ -675,7 +706,8 @@ table(doc, ["Layer", "Objects"], [
     ["Semantic view", f"`{OF['semantic_view']['name']}`"],
     ["Cortex agent", f"`{OF['agent']}` (Snowflake Intelligence)"],
     ["dbt", f"`{OF['dbt_project']['name']}`, deployed from Git repository `MFG_ADMIN.GIT.MFG_USE_CASES`"],
-    ["Native App / listing", "None: deployed directly into the account"],
+    ["Native App / listing", "`ORDER_TO_CASH_APP` from package `ORDER_TO_CASH_PKG`, internal listing `ORDER_TO_CASH_ORG`: "
+                             "bundled data and live Ask Cortex; Apply (dbt) disabled"],
 ], widths=[1.4, 5.5], size=8.5)
 body(doc, "Links and locations", size=11, color=RGBColor.from_string(color), after=2)
 rm = repo_meta("mfg-use-cases")
@@ -687,6 +719,7 @@ link_table(doc, ["Asset", "Link / location", "Notes"], [
      VIS.get("mfg-order-to-cash-public", "?")],
     ["Local app", ("url", "http://localhost:5190", "http://localhost:5190"), "server port 3015 · " + str(O2C_UC / "app")],
 ], widths=[1.4, 3.8, 1.7])
+native_app_tables("ORDER_TO_CASH_APP", "ORDER_TO_CASH_ORG", color)
 body(doc, "Presales kit", size=11, color=RGBColor.from_string(color), after=2)
 body(doc, str(O2C_KIT), size=8.5, color=GREY, after=2)
 for f in sorted(p.name for p in O2C_KIT.iterdir() if p.is_file()):
@@ -717,7 +750,7 @@ if jo.exists():
     framed_picture(doc, docx_img(jo), 5.9, "SAP JCo Extractor · live capture of http://localhost:5187")
 body(doc, "What's inside", size=11, color=RGBColor.from_string(color), after=2)
 nav_cols(doc, JCO_NAV, color)
-shot_pair(doc, [(str(SHOTS / "jco/02.png"), "Pipeline in 3D"), (str(SHOTS / "jco/03.png"), "Field Mapper")])
+shot_pair(doc, [(str(SHOTS / "jco/02.png"), "Pipeline in 3D"), (str(SHOTS / "jco/03.png"), "Metadata Explorer")])
 body(doc, "Runtime", size=11, color=RGBColor.from_string(color), after=2)
 table(doc, ["Item", "Detail"], [
     ["Ports", "server 3012 · client 5187 · JCo bridge 8095"],
@@ -776,6 +809,13 @@ for k, title, _, repo, pub, local, ports, appn, lst, kit in P:
         gaps.append(f"{title}: presales kit has no narrated walkthrough video.")
     if not PF.get(k):
         gaps.append(f"{title}: dashboard could not be captured for this index.")
+for title, appn, name in MFG_APPS:
+    missing = [lbl for conn, lbl in REG if not app(conn, appn)]
+    if missing:
+        gaps.append(f"{title}: Native App not installed in {', '.join(missing)}.")
+    unlisted = [lbl for conn, lbl in REG if not listing(conn, name)]
+    if unlisted:
+        gaps.append(f"{title}: internal listing {name} not published in {', '.join(unlisted)}.")
 for g in gaps:
     bullet(doc, g)
 

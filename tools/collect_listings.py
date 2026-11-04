@@ -25,12 +25,14 @@ for n in CONNS:
                    "rows": [{k: str(v) for k, v in r.items()} for r in rows(c, "SHOW LISTINGS")]}
     res = []
     for a in rows(c, "SHOW APPLICATIONS"):
-        if "360" not in a["name"]:
+        if "360" not in a["name"] and a["name"] not in ("MULTI_ERP_SPEND_APP", "ORDER_TO_CASH_APP"):
             continue
         url = None
         for s in rows(c, f"SHOW SERVICES IN APPLICATION {a['name']}"):
             for e in rows(c, f"SHOW ENDPOINTS IN SERVICE {a['name']}.{s['schema_name']}.{s['name']}"):
-                url = e.get("ingress_url") or url
+                # Before the endpoint is ready, ingress_url holds a "provisioning in progress" message, not a host.
+                if str(e.get("ingress_url") or "").endswith(".snowflakecomputing.app"):
+                    url = e["ingress_url"]
         res.append({"app": a["name"], "version": a.get("version"), "patch": a.get("patch"), "url": url})
     apps[n] = res
     print(n, len(listings[n]["rows"]), "listings,", len(res), "apps")
